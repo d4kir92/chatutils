@@ -26,6 +26,23 @@ function ChatUtils:ThinkClicks()
 end
 
 ChatUtils:ThinkClicks()
+function ChatUtils:CheckWord(msg, name, word)
+    if name == nil then return msg end
+
+    return string.gsub(msg, "%s*" .. word .. "%s*", "|cff" .. "FFFF00" .. "|H" .. word .. ":" .. name .. "|h" .. "[" .. word .. "]" .. "|h|r")
+end
+
+function ChatUtils:CheckWords(msg, name, word, word2)
+    if name == nil then return msg end
+    if word and string.find(msg, word, 0, true) then
+        return ChatUtils:CheckWord(msg, name, word)
+    elseif word2 and string.find(msg, word2, 0, true) then
+        return ChatUtils:CheckWord(msg, name, word2)
+    end
+
+    return msg
+end
+
 function ChatUtils:SetHyperlink(link)
     local poi = string.find(link, ":", 0, true)
     local typ = string.sub(link, 1, poi - 1)
@@ -70,22 +87,9 @@ function ChatUtils:ConvertMessage(typ, msg, ...)
         end
     end
 
-    if string.find(msg, "invite", 0, true) then
-        local name = select(1, ...)
-        if name then
-            msg = string.gsub(msg, "invite", "|cff" .. "FFFF00" .. "|Hinvite:" .. name .. "|h" .. "[invite]" .. "|h|r")
-        end
-    elseif string.find(msg, "inv", 0, true) then
-        local name = select(1, ...)
-        if name then
-            msg = string.gsub(msg, "inv", "|cff" .. "FFFF00" .. "|Hinv:" .. name .. "|h" .. "inv" .. "|h|r")
-        end
-    elseif string.find(msg, "einladen", 0, true) then
-        local name = select(1, ...)
-        if name then
-            msg = string.gsub(msg, "einladen", "|cff" .. "FFFF00" .. "|Heinladen:" .. name .. "|h" .. "einladen" .. "|h|r")
-        end
-    end
+    local name = select(1, ...)
+    msg = ChatUtils:CheckWords(msg, name, "invite", "inv")
+    msg = ChatUtils:CheckWords(msg, name, "einladen")
 
     return false, msg, ...
 end
