@@ -79,14 +79,13 @@ function ChatUtils:SetHyperlink(link)
 end
 
 function ChatUtils:ConvertMessage(typ, msg, ...)
-    for i, p in pairs({"[htps:/]*%w+%.%w[%w%.%/%+%-%_%#%?%=]*"}) do
+    --[[for i, p in pairs({"[htps:/]*%w+%.%w[%w%.%/%+%-%_%#%?%=]*"}) do
         local s1 = string.find(msg, "|")
         local s2 = string.find(msg, p)
         if s1 == nil and s2 ~= nil then
             msg = string.gsub(msg, p, ChatUtils:FormatURL("%1"))
         end
-    end
-
+    end]]
     local name = select(1, ...)
     msg = ChatUtils:CheckWords(msg, name, "invite", "inv")
     msg = ChatUtils:CheckWords(msg, name, "einladen")
