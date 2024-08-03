@@ -26,10 +26,33 @@ function ChatUtils:ThinkClicks()
 end
 
 ChatUtils:ThinkClicks()
+function stringToTable(str)
+    local t = {}
+    for value in str:gmatch("%S+") do
+        table.insert(t, value)
+    end
+
+    return t
+end
+
+function tableToString(t, separator)
+    return table.concat(t, separator or " ")
+end
+
 function ChatUtils:CheckWord(msg, name, word)
     if name == nil then return msg end
+    local words = stringToTable(msg)
+    local res = ""
+    for i, v in pairs(words) do
+        if i > 0 then
+            res = res .. " "
+        end
 
-    return string.gsub(msg, "%s*" .. word .. "%s*", "|cff" .. "FFFF00" .. "|H" .. word .. ":" .. name .. "|h" .. "[" .. word .. "]" .. "|h|r")
+        local w = string.gsub(v, word, "|cff" .. "FFFF00" .. "|H" .. word .. ":" .. name .. "|h" .. "[" .. word .. "]" .. "|h|r")
+        res = res .. w
+    end
+
+    return res
 end
 
 function ChatUtils:CheckWords(msg, name, word, word2)
