@@ -1,6 +1,6 @@
 ## Interface: 30403
-## Version: 0.1.6
-## Title: ChatUtils |T134149:16:16:0:0|t by |cff3FC7EBD4KiR |T132115:16:16:0:0|t 
+## Version: 0.1.7
+## Title: ChatUtils |T133457:16:16:0:0|t by |cff3FC7EBD4KiR |T132115:16:16:0:0|t 
 ## Notes: ChatUtils add functions to the chat
 ## Author: D4KiR
 ## DefaultState: enabled
