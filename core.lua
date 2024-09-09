@@ -48,8 +48,13 @@ function ChatUtils:CheckWord(msg, name, word)
             res = res .. " "
         end
 
+        local isWholeWord = v:len() == word:len()
         local w = string.gsub(v, word, "|cff" .. "FFFF00" .. "|H" .. word .. ":" .. name .. "|h" .. "[" .. word .. "]" .. "|h|r")
-        res = res .. w
+        if isWholeWord then
+            res = res .. w
+        else
+            res = res .. v
+        end
     end
 
     return res
