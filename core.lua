@@ -155,3 +155,5 @@ else
         end
     end
 end
+
+ChatUtils:SetVersion("ChatUtils", 133457, "0.1.14")
