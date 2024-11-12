@@ -52,14 +52,14 @@ end
 
 function ChatUtils:InitSettings()
     CHUT = CHUT or {}
-    ChatUtils:SetVersion("ChatUtils", 133457, "0.2.0")
+    ChatUtils:SetVersion("ChatUtils", 133457, "0.2.1")
     cu_settings = ChatUtils:CreateFrame(
         {
             ["name"] = "ChatUtils",
             ["pTab"] = {"CENTER"},
             ["sw"] = 520,
             ["sh"] = 520,
-            ["title"] = format("ChatUtils |T133457:16:16:0:0|t v|cff3FC7EB%s", "0.2.0")
+            ["title"] = format("ChatUtils |T133457:16:16:0:0|t v|cff3FC7EB%s", "0.2.1")
         }
     )
 
