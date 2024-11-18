@@ -446,7 +446,6 @@ function ChatUtils:Init()
         end
 
         if not success then
-            ChatUtils:Debug("chat.lua: not success")
             C_Timer.After(0.1, ChatUtils.PartyScan)
         end
     end
