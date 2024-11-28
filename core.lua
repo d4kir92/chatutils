@@ -518,4 +518,13 @@ function ChatUtils:Init()
     ChatUtils:PartyScan()
     ChatUtils:RaidScan()
     ChatUtils:GuildScan()
+    if SetChatColorNameByClass then
+        for _, v in ipairs({"SAY", "EMOTE", "YELL", "WHISPER", "PARTY", "PARTY_LEADER", "RAID", "RAID_LEADER", "RAID_WARNING", "INSTANCE_CHAT", "INSTANCE_CHAT_LEADER", "GUILD", "OFFICER"}) do
+            SetChatColorNameByClass(v, true)
+        end
+
+        for i = 1, 20 do
+            SetChatColorNameByClass("CHANNEL" .. i, true)
+        end
+    end
 end
