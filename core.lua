@@ -249,7 +249,7 @@ function ChatUtils:Init()
                         end
                     end
 
-                    if UnitGroupRolesAssigned and guid then
+                    if CHUT["SHOWROLEICON"] and UnitGroupRolesAssigned and guid then
                         local role = ChatUtils:GetRoleByGuid(guid)
                         if role and role ~= "" and role ~= "NONE" then
                             msg = "|A:" .. ChatUtils:GetRoleIcon(role) .. ":16:16:0:0|a" .. msg
