@@ -114,7 +114,7 @@ function ChatUtils:Init()
             StaticPopup_Show("CLICK_LINK_URL", "", "", tab)
 
             return true
-        elseif typ == "invite" or typ == "inv" or typ == "einladen" then
+        elseif typ == "invite" or typ == "inv" or typ == "einladen" or typ == "layer" then
             local name = string.sub(link, poi + 1)
             if rightWasDown then
                 if GuildInvite then
