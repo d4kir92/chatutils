@@ -486,7 +486,6 @@ function ChatUtils:Init()
     lf:RegisterEvent("RAID_ROSTER_UPDATE")
     lf:RegisterEvent("WHO_LIST_UPDATE")
     lf:RegisterEvent("PLAYER_LEVEL_UP")
-    lf:RegisterEvent("CHAT_MSG_SYSTEM")
     lf:SetScript(
         "OnEvent",
         function(sel, event, ...)
@@ -499,7 +498,7 @@ function ChatUtils:Init()
                         ChatUtils:SetLevel(UnitName("player"), GetRealmName(), UnitLevel("player"))
                     end
                 )
-            elseif event == "WHO_LIST_UPDATE" or event == "CHAT_MSG_SYSTEM" then
+            elseif event == "WHO_LIST_UPDATE" then
                 C_Timer.After(delay, ChatUtils.WhoScan)
             elseif event == "FRIENDLIST_UPDATE" then
                 C_Timer.After(delay, ChatUtils.FriendScan)
