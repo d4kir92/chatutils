@@ -4,7 +4,7 @@
 ## Interface-Cata: 40401
 ## Interface: 110002, 110005, 110007, 110100
 
-## Version: 0.3.6
+## Version: 0.3.7
 ## Title: ChatUtils by |cff3FC7EBD4KiR |T132115:16:16:0:0|t 
 ## Notes: ChatUtils add functions to the chat
 ## Author: D4KiR
@@ -19,6 +19,12 @@ libs\D4Lib\D4Lib.xml
 
 locale\enUS.lua
 locale\deDE.lua
+locale\esES.lua
+locale\frFR.lua
+locale\itIT.lua
+locale\ptBR.lua
+locale\ruRU.lua
+locale\zhCN.lua
 
 settings.lua
 core.lua
