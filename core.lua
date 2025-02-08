@@ -149,6 +149,7 @@ function ChatUtils:Init()
     end]]
         msg = ChatUtils:CheckWords(msg, name, "invite", "inv")
         msg = ChatUtils:CheckWords(msg, name, "einladen")
+        msg = ChatUtils:CheckWords(msg, name, "layer")
 
         return false, msg, name, ...
     end
