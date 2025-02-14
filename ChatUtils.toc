@@ -4,7 +4,7 @@
 ## Interface-Cata: 40401, 40402
 ## Interface: 110007, 110100
 
-## Version: 0.3.11
+## Version: 0.3.12
 ## Title: ChatUtils by |cff3FC7EBD4KiR |T132115:16:16:0:0|t 
 ## Notes: ChatUtils add functions to the chat
 ## Author: D4KiR
