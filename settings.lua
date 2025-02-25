@@ -6,7 +6,7 @@ chutSetup:SetScript(
     function(self, event, ...)
         if event == "PLAYER_LOGIN" then
             CHUT = CHUT or {}
-            ChatUtils:SetVersion(133457, "0.3.14")
+            ChatUtils:SetVersion(133457, "0.3.15")
             ChatUtils:AddSlash("chut", ChatUtils.ToggleSettings)
             ChatUtils:AddSlash("ChatUtils", ChatUtils.ToggleSettings)
             local mmbtn = nil
@@ -16,7 +16,7 @@ chutSetup:SetScript(
                     ["icon"] = 133457,
                     ["var"] = mmbtn,
                     ["dbtab"] = CHUT,
-                    ["vTT"] = {{"|T133457:16:16:0:0|t ChatUtils", "v|cff3FC7EB" .. ChatUtils:GetVersion()}, {"Leftclick", "Open Settings"}, {"Rightclick", "Hide Minimap Icon"}},
+                    ["vTT"] = {{"|T133457:16:16:0:0|t ChatUtils", "v|cff3FC7EB" .. ChatUtils:GetVersion()}, {ChatUtils:Trans("LID_LEFTCLICK"), ChatUtils:Trans("LID_OPENSETTINGS")}, {ChatUtils:Trans("LID_RIGHTCLICK"), ChatUtils:Trans("LID_HIDEMINIMAPBUTTON")}},
                     ["funcL"] = function()
                         ChatUtils:ToggleSettings()
                     end,
