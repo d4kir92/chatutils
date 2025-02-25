@@ -6,7 +6,7 @@ chutSetup:SetScript(
     function(self, event, ...)
         if event == "PLAYER_LOGIN" then
             CHUT = CHUT or {}
-            ChatUtils:SetVersion(133457, "0.3.16")
+            ChatUtils:SetVersion(133457, "0.3.17")
             ChatUtils:AddSlash("chut", ChatUtils.ToggleSettings)
             ChatUtils:AddSlash("ChatUtils", ChatUtils.ToggleSettings)
             local mmbtn = nil
@@ -16,7 +16,7 @@ chutSetup:SetScript(
                     ["icon"] = 133457,
                     ["var"] = mmbtn,
                     ["dbtab"] = CHUT,
-                    ["vTT"] = {{"|T133457:16:16:0:0|t ChatUtils", "v|cff3FC7EB" .. ChatUtils:GetVersion()}, {ChatUtils:Trans("LID_LEFTCLICK"), ChatUtils:Trans("LID_OPENSETTINGS")}, {ChatUtils:Trans("LID_RIGHTCLICK"), ChatUtils:Trans("LID_HIDEMINIMAPBUTTON")}},
+                    ["vTT"] = {{"|T133457:16:16:0:0|t C|cff3FC7EBhat|rU|cff3FC7EBtils|r", "v|cff3FC7EB" .. ChatUtils:GetVersion()}, {ChatUtils:Trans("LID_LEFTCLICK"), ChatUtils:Trans("LID_OPENSETTINGS")}, {ChatUtils:Trans("LID_RIGHTCLICK"), ChatUtils:Trans("LID_HIDEMINIMAPBUTTON")}},
                     ["funcL"] = function()
                         ChatUtils:ToggleSettings()
                     end,
@@ -54,7 +54,7 @@ function ChatUtils:InitSettings()
             ["pTab"] = {"CENTER"},
             ["sw"] = 520,
             ["sh"] = 520,
-            ["title"] = format("|T133457:16:16:0:0|t ChatUtils v|cff3FC7EB%s", ChatUtils:GetVersion())
+            ["title"] = format("|T133457:16:16:0:0|t C|cff3FC7EBhat|rU|cff3FC7EBtils|r v|cff3FC7EB%s", ChatUtils:GetVersion())
         }
     )
 
