@@ -1,5 +1,5 @@
 ## Interface: 40401, 40402
-## Version: 0.3.13
+## Version: 0.3.14
 ## Title: ChatUtils |T133457:16:16:0:0|t by |cff3FC7EBD4KiR |T132115:16:16:0:0|t 
 ## Notes: ChatUtils add functions to the chat
 ## Author: D4KiR
