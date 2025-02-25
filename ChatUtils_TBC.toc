@@ -1,13 +1,15 @@
 ## Interface: 20504
-## Version: 0.3.12
+## Version: 0.3.13
 ## Title: ChatUtils |T133457:16:16:0:0|t by |cff3FC7EBD4KiR |T132115:16:16:0:0|t 
 ## Notes: ChatUtils add functions to the chat
 ## Author: D4KiR
+## X-Category: D4KiR
 ## DefaultState: enabled
 ## SavedVariables: CHUT
 ## SavedVariablesPerCharacter: CHUTPC
 ## X-Curse-Project-ID: 1070933
 ## X-Wago-ID: v63oE76b
+## IconTexture: 133457
 
 libs\D4Lib\D4Lib.xml
 
