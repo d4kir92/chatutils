@@ -139,14 +139,34 @@ function ChatUtils:Init()
         return false
     end
 
-    function ChatUtils:ConvertMessage(typ, msg, name, ...)
-        --[[for i, p in pairs({"[htps:/]*%w+%.%w[%w%.%/%+%-%_%#%?%=]*"}) do
-        local s1 = string.find(msg, "|")
-        local s2 = string.find(msg, p)
-        if s1 == nil and s2 ~= nil then
-            msg = string.gsub(msg, p, ChatUtils:FormatURL("%1"))
+    function GetColoredName(event, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12)
+        if not a2 then return a2 end
+        local chatType = strsub(event, 10)
+        if strsub(chatType, 1, 7) == "WHISPER" then
+            chatType = "WHISPER"
+        elseif strsub(chatType, 1, 7) == "CHANNEL" then
+            chatType = "CHANNEL" .. a8
         end
-    end]]
+
+        if chatType == "GUILD" then
+            a2 = Ambiguate(a2, "guild")
+        else
+            a2 = Ambiguate(a2, "none")
+        end
+
+        local info = ChatTypeInfo[chatType]
+        if info and info.colorNameByClass and a12 and a12 ~= "" and a12 ~= 0 then
+            local _, class = GetPlayerInfoByGUID(a12)
+            if class then
+                local _, _, _, str = ChatUtils:GetClassColor(class)
+                if str then return format("|c%s%s|r", str, a2) end
+            end
+        end
+
+        return a2
+    end
+
+    function ChatUtils:ConvertMessage(typ, msg, name, ...)
         msg = ChatUtils:CheckWords(msg, name, "invite", "inv")
         msg = ChatUtils:CheckWords(msg, name, "einladen")
         msg = ChatUtils:CheckWords(msg, name, "layer")
@@ -225,7 +245,7 @@ function ChatUtils:Init()
     allowedTyp["player"] = true
     allowedTyp["playerCommunity"] = true
     allowedTyp["playerGM"] = true
-    local function LOCALChatAddPlayerIcons(msg, c)
+    local function LOCALChatAddPlayerIcons(msg, author, c)
         local links = {}
         for i = 1, string.len(msg) do
             local _, _, itemString = strfind(msg, "|H(.+)|h", i)
@@ -277,7 +297,7 @@ function ChatUtils:Init()
             end
         end
 
-        return msg
+        return msg, author
     end
 
     local function removeTimestamp(message)
@@ -293,7 +313,7 @@ function ChatUtils:Init()
     end
 
     local hooks = {}
-    local function AddMessage(sel, message, ...)
+    local function AddMessage(sel, message, author, ...)
         local chanName = nil
         local timestamp = nil
         message, timestamp = removeTimestamp(message)
@@ -348,14 +368,14 @@ function ChatUtils:Init()
                 end
             end
 
-            message = LOCALChatAddPlayerIcons(message, 1)
+            message, author = LOCALChatAddPlayerIcons(message, author, 1)
         end
 
         if timestamp then
             message = timestamp .. message
         end
 
-        return hooks[sel](sel, message, ...)
+        return hooks[sel](sel, message, author, ...)
     end
 
     for index = 1, NUM_CHAT_WINDOWS do
