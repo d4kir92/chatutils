@@ -3,8 +3,9 @@ local gold = "|TInterface\\MoneyFrame\\UI-GoldIcon:12:12:2:0|t"
 local silver = "|TInterface\\MoneyFrame\\UI-SilverIcon:12:12:2:0|t"
 local copper = "|TInterface\\MoneyFrame\\UI-CopperIcon:12:12:2:0|t"
 function ChatUtils:ReplaceMoney(message, word, icon)
-    message = message:gsub("%f[%a]" .. word .. "%f[%A]", icon)
-    message = message:gsub("(%d)" .. word, "%1" .. icon)
+    message = message:gsub("^" .. word .. "$", icon)
+    message = message:gsub("([^%w_])(%d+)" .. word, function(before, number) return before .. number .. icon end)
+    message = message:gsub("^(%d+)" .. word, "%1" .. icon)
 
     return message
 end
@@ -180,6 +181,7 @@ function ChatUtils:Init()
         msg = ChatUtils:CheckWords(msg, name, "invite", "inv")
         msg = ChatUtils:CheckWords(msg, name, "einladen")
         msg = ChatUtils:CheckWords(msg, name, "layer")
+        print(typ)
         if GOLD_AMOUNT_SYMBOL then
             msg = ChatUtils:ReplaceMoney(msg, strlower(GOLD_AMOUNT_SYMBOL), gold)
             msg = ChatUtils:ReplaceMoney(msg, strupper(GOLD_AMOUNT_SYMBOL), gold)
@@ -212,7 +214,9 @@ function ChatUtils:Init()
     end
 
     for i, typ in pairs(chatTypes) do
-        ChatFrame_AddMessageEventFilter(typ, ChatUtils.ConvertMessage)
+        if not string.find(i, "BOSS") then
+            ChatFrame_AddMessageEventFilter(typ, ChatUtils.ConvertMessage)
+        end
     end
 
     if ChatUtils:GetWoWBuild() == "RETAIL" then
