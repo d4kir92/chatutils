@@ -1,4 +1,14 @@
 local _, ChatUtils = ...
+local gold = "|TInterface\\MoneyFrame\\UI-GoldIcon:12:12:2:0|t"
+local silver = "|TInterface\\MoneyFrame\\UI-SilverIcon:12:12:2:0|t"
+local copper = "|TInterface\\MoneyFrame\\UI-CopperIcon:12:12:2:0|t"
+function ChatUtils:ReplaceMoney(message, word, icon)
+    message = message:gsub("%f[%a]" .. word .. "%f[%A]", icon)
+    message = message:gsub("(%d)" .. word, "%1" .. icon)
+
+    return message
+end
+
 function ChatUtils:Init()
     local rightWasDown = false
     local rightWasDownTs = 0
@@ -125,7 +135,7 @@ function ChatUtils:Init()
             else
                 if midWasDown then
                     CommunitiesFrame:Show()
-                    print("Currently only open the Window, later you can enter invitelink in settings to send the link directly to the player")
+                    ChatUtils:MSG("Currently only open the Window, later you can enter invitelink in settings to send the link directly to the player")
                 elseif C_PartyInfo and C_PartyInfo.InviteUnit then
                     C_PartyInfo.InviteUnit(name)
                 elseif InviteUnit then
@@ -170,6 +180,20 @@ function ChatUtils:Init()
         msg = ChatUtils:CheckWords(msg, name, "invite", "inv")
         msg = ChatUtils:CheckWords(msg, name, "einladen")
         msg = ChatUtils:CheckWords(msg, name, "layer")
+        if GOLD_AMOUNT_SYMBOL then
+            msg = ChatUtils:ReplaceMoney(msg, strlower(GOLD_AMOUNT_SYMBOL), gold)
+            msg = ChatUtils:ReplaceMoney(msg, strupper(GOLD_AMOUNT_SYMBOL), gold)
+        end
+
+        if SILVER_AMOUNT_SYMBOL then
+            msg = ChatUtils:ReplaceMoney(msg, strlower(SILVER_AMOUNT_SYMBOL), silver)
+            msg = ChatUtils:ReplaceMoney(msg, strupper(SILVER_AMOUNT_SYMBOL), silver)
+        end
+
+        if COPPER_AMOUNT_SYMBOL then
+            msg = ChatUtils:ReplaceMoney(msg, strlower(COPPER_AMOUNT_SYMBOL), copper)
+            msg = ChatUtils:ReplaceMoney(msg, strupper(COPPER_AMOUNT_SYMBOL), copper)
+        end
 
         return false, msg, name, ...
     end
