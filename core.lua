@@ -181,7 +181,6 @@ function ChatUtils:Init()
         msg = ChatUtils:CheckWords(msg, name, "invite", "inv")
         msg = ChatUtils:CheckWords(msg, name, "einladen")
         msg = ChatUtils:CheckWords(msg, name, "layer")
-        print(typ)
         if GOLD_AMOUNT_SYMBOL then
             msg = ChatUtils:ReplaceMoney(msg, strlower(GOLD_AMOUNT_SYMBOL), gold)
             msg = ChatUtils:ReplaceMoney(msg, strupper(GOLD_AMOUNT_SYMBOL), gold)
