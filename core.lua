@@ -1,13 +1,33 @@
 local _, ChatUtils = ...
-local gold = "|TInterface\\MoneyFrame\\UI-GoldIcon:12:12:2:0|t"
-local silver = "|TInterface\\MoneyFrame\\UI-SilverIcon:12:12:2:0|t"
-local copper = "|TInterface\\MoneyFrame\\UI-CopperIcon:12:12:2:0|t"
+local GuildInvite = getglobal("GuildInvite")
+local InviteUnit = getglobal("InviteUnit")
+local GetNumPartyMembers = getglobal("GetNumPartyMembers")
+local GetNumRaidMembers = getglobal("GetNumRaidMembers")
+local gold = "|TInterface\\MoneyFrame\\UI-GoldIcon:%d:%d:0:0|t"
+local silver = "|TInterface\\MoneyFrame\\UI-SilverIcon:%d:%d:0:0|t"
+local copper = "|TInterface\\MoneyFrame\\UI-CopperIcon:%d:%d:0:0|t"
 function ChatUtils:ReplaceMoney(message, word, icon)
-    message = message:gsub("^" .. word .. "$", icon)
-    message = message:gsub("([^%w_])(%d+)" .. word, function(before, number) return before .. number .. icon end)
-    message = message:gsub("^(%d+)" .. word, "%1" .. icon)
+    local _, fs = ChatFrame1:GetFont()
+    if fs then
+        fs = fs - 2
+        local rIcon = format(icon, fs, fs)
+        if rIcon then
+            message = message:gsub("^(%d+)" .. word, "%1" .. rIcon .. " ")
+            message = message:gsub("[^%w](%d+)" .. word, "%1" .. rIcon .. " ")
+            message = message:gsub("[^%w](%d+) " .. word, "%1 " .. rIcon .. " ")
+        end
+    end
 
     return message
+end
+
+local function stringToTable(str)
+    local t = {}
+    for value in str:gmatch("%S+") do
+        table.insert(t, value)
+    end
+
+    return t
 end
 
 function ChatUtils:Init()
@@ -70,19 +90,6 @@ function ChatUtils:Init()
     end
 
     ChatUtils:ThinkClicks()
-    function stringToTable(str)
-        local t = {}
-        for value in str:gmatch("%S+") do
-            table.insert(t, value)
-        end
-
-        return t
-    end
-
-    function tableToString(t, separator)
-        return table.concat(t, separator or " ")
-    end
-
     function ChatUtils:CheckWord(msg, name, word)
         if name == nil then return msg end
         local words = stringToTable(msg)
@@ -128,7 +135,9 @@ function ChatUtils:Init()
         elseif typ == "invite" or typ == "inv" or typ == "einladen" or typ == "layer" then
             local name = string.sub(link, poi + 1)
             if rightWasDown then
-                if GuildInvite then
+                if C_GuildInfo then
+                    C_GuildInfo.Invite(name)
+                elseif GuildInvite then
                     GuildInvite(name)
                 end
 
@@ -422,7 +431,7 @@ function ChatUtils:Init()
             PLYCache[author] = guid
         end
 
-        return false, LOCALChatAddItemIcons(msg, 1), author, ...
+        return false, LOCALChatAddItemIcons(msg), author, ...
     end
 
     for i, typ in pairs(chatTypes) do
@@ -472,9 +481,10 @@ function ChatUtils:Init()
 
     function ChatUtils:FriendScan()
         for i = 1, C_FriendList.GetNumFriends() do
-            local info = C_FriendList.GetFriendInfo(i)
-            if info and info.fullName and info.level then
-                ChatUtils:SetLevel(info.fullName, nil, info.level, "FriendScan")
+            local info = C_FriendList.GetFriendInfoByIndex(i)
+            print(info)
+            if info and info.name and info.level then
+                ChatUtils:SetLevel(info.name, nil, info.level, "FriendScan")
             end
         end
     end
@@ -512,7 +522,7 @@ function ChatUtils:Init()
     function ChatUtils:GuildScan()
         if IsInGuild() then
             C_GuildInfo.GuildRoster()
-            local max = GetNumGuildMembers(true)
+            local max = GetNumGuildMembers()
             for i = 1, max do
                 local Name, _, _, Level = GetGuildRosterInfo(i)
                 local name, realm = Name:match("([^%-]+)%-?(.*)")
