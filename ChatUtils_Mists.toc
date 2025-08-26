@@ -1,5 +1,5 @@
 ## Interface: 50500
-## Version: 0.3.33
+## Version: 0.3.34
 ## Title: C|cff3FC7EBhat|rU|cff3FC7EBtils|r |T133457:16:16:0:0|t by |cff3FC7EBD4KiR |T132115:16:16:0:0|t
 ## Notes: ChatUtils add functions to the chat
 ## Author: D|cff3FC7EB4KiR |T132115:16:16:0:0|t

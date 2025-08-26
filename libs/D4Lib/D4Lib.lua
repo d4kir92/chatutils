@@ -37,9 +37,9 @@ function D4:GetWoWBuild()
 end
 
 D4.oldWow = D4.oldWow or false
-if C_Timer == nil then
+if getglobal("C_Timer") == nil then
     D4:MSG("[D4] ADD MISSING: C_Timer")
-    C_Timer = {}
+    setglobal("C_Timer", {})
     local f = CreateFrame("Frame")
     f.tab = {}
     f:HookScript(
@@ -62,8 +62,8 @@ if C_Timer == nil then
     D4.oldWow = true
 end
 
-if C_Widget == nil then
-    C_Widget = {}
+if getglobal("C_Widget") == nil then
+    setglobal("C_Widget", {})
     function C_Widget:IsWidget(frame)
         if frame and frame.GetName then return true end
 
@@ -350,6 +350,7 @@ end
 
 function D4:GetMouseFocus()
     if GetMouseFoci then return GetMouseFoci()[1] end
+    local GetMouseFocus = getglobal("GetMouseFocus")
     if GetMouseFocus then return GetMouseFocus() end
     D4:MSG("[D4][GetMouseFocus] FAILED")
 
@@ -358,6 +359,7 @@ end
 
 function D4:UnitAura(...)
     if C_UnitAuras and C_UnitAuras.GetAuraDataByIndex then return C_UnitAuras.GetAuraDataByIndex(...) end
+    local UnitAura = getglobal("UnitAura")
     if UnitAura then return UnitAura(...) end
     D4:MSG("[D4][UnitAura] FAILED")
 
@@ -366,6 +368,7 @@ end
 
 function D4:LoadAddOn(name)
     if C_AddOns and C_AddOns.LoadAddOn then return C_AddOns.LoadAddOn(name) end
+    local LoadAddOn = getglobal("LoadAddOn")
     if LoadAddOn then return LoadAddOn(name) end
     D4:MSG("[D4][LoadAddOn] FAILED")
 
@@ -379,6 +382,7 @@ function D4:IsAddOnLoaded(name, from)
         return loaded
     end
 
+    local IsAddOnLoaded = getglobal("IsAddOnLoaded")
     if IsAddOnLoaded then return IsAddOnLoaded(name) end
     D4:MSG("[D4][IsAddOnLoaded] FAILED")
 
@@ -790,6 +794,8 @@ end
 local icons = {}
 local searchIcons = true
 function D4:GetTalentIcons()
+    local GetPrimaryTalentTree = getglobal("GetPrimaryTalentTree")
+    local GetTalentTabInfo = getglobal("GetTalentTabInfo")
     if searchIcons then
         if GetSpecialization and GetSpecialization() then
             if GetSpecializationInfo then
@@ -827,6 +833,10 @@ end
 
 function D4:GetTalentInfo()
     local specid, icon
+    local GetPrimaryTalentTree = getglobal("GetPrimaryTalentTree")
+    local GetTalentTabInfo = getglobal("GetTalentTabInfo")
+    local GetActiveTalentGroup = getglobal("GetActiveTalentGroup")
+    local GetTalentGroupRole = getglobal("GetTalentGroupRole")
     if GetSpecialization and GetSpecialization() then
         specid = GetSpecialization()
         if GetSpecializationInfo then
@@ -962,6 +972,9 @@ D4:RegisterEvent(f, "PLAYER_LOGIN")
 D4:OnEvent(
     f,
     function(self, event, ...)
+        local GetTrackingTexture = getglobal("GetTrackingTexture")
+        local MiniMapTracking = getglobal("MiniMapTracking")
+        local MiniMapTrackingIcon = getglobal("MiniMapTrackingIcon")
         if GetTrackingTexture then
             local trackingTexture = GetTrackingTexture()
             if trackingTexture and MiniMapTracking and MiniMapTrackingIcon and not MiniMapTrackingIcon:GetTexture() then

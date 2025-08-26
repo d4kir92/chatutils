@@ -6,15 +6,44 @@ local GetNumRaidMembers = getglobal("GetNumRaidMembers")
 local gold = "|TInterface\\MoneyFrame\\UI-GoldIcon:%d:%d:0:0|t"
 local silver = "|TInterface\\MoneyFrame\\UI-SilverIcon:%d:%d:0:0|t"
 local copper = "|TInterface\\MoneyFrame\\UI-CopperIcon:%d:%d:0:0|t"
+local rightWasDown = false
+local rightWasDownTs = 0
+local midWasDown = false
+local midWasDownTs = 0
+local moneyTab = {
+    ["gold"] = {"gold", "Gold",},
+    ["silver"] = {"silver", "Silver", "silber", "Silber"},
+    ["copper"] = {"copper", "Copper", "kupfer", "Kupfer"}
+}
+
+local moneyTabIcons = {
+    ["gold"] = gold,
+    ["silver"] = silver,
+    ["copper"] = copper
+}
+
 function ChatUtils:ReplaceMoney(message, word, icon)
     local _, fs = ChatFrame1:GetFont()
     if fs then
         fs = fs - 2
-        local rIcon = format(icon, fs, fs)
-        if rIcon then
-            message = message:gsub("^(%d+)" .. word, "%1" .. rIcon .. " ")
-            message = message:gsub("[^%w](%d+)" .. word, "%1" .. rIcon .. " ")
-            message = message:gsub("[^%w](%d+) " .. word, "%1 " .. rIcon .. " ")
+        if moneyTab[word] then
+            local rIcon = format(moneyTabIcons[word], fs, fs)
+            if rIcon then
+                for i, sWord in pairs(moneyTab[word]) do
+                    message = message:gsub("^(%d+)" .. sWord, "%1" .. rIcon .. " ")
+                    message = message:gsub("^(%d+) " .. sWord, "%1" .. rIcon .. " ")
+                    message = message:gsub("[^%w](%d+)" .. sWord, "%1" .. rIcon .. " ")
+                    message = message:gsub("[^%w](%d+) " .. sWord, "%1 " .. rIcon .. " ")
+                end
+            end
+        else
+            local rIcon = format(icon, fs, fs)
+            if rIcon then
+                message = message:gsub("^(%d+)" .. word, "%1" .. rIcon .. " ")
+                message = message:gsub("^(%d+) " .. word, "%1" .. rIcon .. " ")
+                message = message:gsub("[^%w](%d+)" .. word, "%1" .. rIcon .. " ")
+                message = message:gsub("[^%w](%d+) " .. word, "%1 " .. rIcon .. " ")
+            end
         end
     end
 
@@ -30,184 +59,281 @@ local function stringToTable(str)
     return t
 end
 
-function ChatUtils:Init()
-    local rightWasDown = false
-    local rightWasDownTs = 0
-    local midWasDown = false
-    local midWasDownTs = 0
-    function ChatUtils:ChatOnlyBig(str, imax)
-        if str == nil then return nil end
-        local smax = imax or 3
-        local res = string.gsub(str, "[^%u-]", "")
-        -- shorten
-        if #res > smax then
-            res = string.sub(res, 1, smax)
-        end
+function ChatUtils:ConvertMessage(typ, msg, name, ...)
+    msg = ChatUtils:CheckWords(msg, name, "invite", "inv")
+    msg = ChatUtils:CheckWords(msg, name, "einladen")
+    msg = ChatUtils:CheckWords(msg, name, "layer")
+    msg = ChatUtils:ReplaceMoney(msg, "gold", gold)
+    msg = ChatUtils:ReplaceMoney(msg, "silver", gold)
+    msg = ChatUtils:ReplaceMoney(msg, "copper", gold)
+    if GOLD_AMOUNT_SYMBOL then
+        msg = ChatUtils:ReplaceMoney(msg, strlower(GOLD_AMOUNT_SYMBOL), gold)
+        msg = ChatUtils:ReplaceMoney(msg, strupper(GOLD_AMOUNT_SYMBOL), gold)
+    end
 
-        -- 1-3 => upper
+    if SILVER_AMOUNT_SYMBOL then
+        msg = ChatUtils:ReplaceMoney(msg, strlower(SILVER_AMOUNT_SYMBOL), silver)
+        msg = ChatUtils:ReplaceMoney(msg, strupper(SILVER_AMOUNT_SYMBOL), silver)
+    end
+
+    if COPPER_AMOUNT_SYMBOL then
+        msg = ChatUtils:ReplaceMoney(msg, strlower(COPPER_AMOUNT_SYMBOL), copper)
+        msg = ChatUtils:ReplaceMoney(msg, strupper(COPPER_AMOUNT_SYMBOL), copper)
+    end
+
+    return false, msg, name, ...
+end
+
+function ChatUtils:ChatOnlyBig(str, imax)
+    if str == nil then return nil end
+    local smax = imax or 3
+    local res = string.gsub(str, "[^%u-]", "")
+    -- shorten
+    if #res > smax then
+        res = string.sub(res, 1, smax)
+    end
+
+    -- 1-3 => upper
+    if #str <= smax then
+        res = string.upper(res)
+    end
+
+    -- no upper?
+    if #res <= 0 then
         if #str <= smax then
+            res = string.upper(str)
+        else
+            res = string.gsub(str, "[^%l-]", "")
+            res = string.sub(res, 1, smax)
             res = string.upper(res)
         end
-
-        -- no upper?
-        if #res <= 0 then
-            if #str <= smax then
-                res = string.upper(str)
-            else
-                res = string.gsub(str, "[^%l-]", "")
-                res = string.sub(res, 1, smax)
-                res = string.upper(res)
-            end
-        end
-
-        if string.find(res, "-", string.len(res), true) then
-            res = string.gsub(str, "[^%u]", "")
-        end
-
-        return res
     end
 
-    function ChatUtils:ThinkClicks()
-        if IsMouseButtonDown("RightButton") then
-            rightWasDown = true
-            rightWasDownTs = time()
-        end
-
-        if rightWasDownTs < time() - 0.1 then
-            rightWasDown = false
-        end
-
-        if IsMouseButtonDown("MiddleButton") then
-            midWasDown = true
-            midWasDownTs = time()
-        end
-
-        if midWasDownTs < time() - 0.1 then
-            midWasDown = false
-        end
-
-        C_Timer.After(0.01, ChatUtils.ThinkClicks)
+    if string.find(res, "-", string.len(res), true) then
+        res = string.gsub(str, "[^%u]", "")
     end
 
-    ChatUtils:ThinkClicks()
-    function ChatUtils:CheckWord(msg, name, word)
-        if name == nil then return msg end
-        local words = stringToTable(msg)
-        local res = ""
-        for i, v in pairs(words) do
-            if i > 0 then
-                res = res .. " "
-            end
+    return res
+end
 
-            local isWholeWord = v:len() == word:len()
-            local w = string.gsub(v, word, "|cff" .. "FFFF00" .. "|H" .. word .. ":" .. name .. "|h" .. "[" .. word .. "]" .. "|h|r")
-            if isWholeWord then
-                res = res .. w
-            else
-                res = res .. v
-            end
-        end
-
-        return res
+function ChatUtils:ThinkClicks()
+    if IsMouseButtonDown("RightButton") then
+        rightWasDown = true
+        rightWasDownTs = time()
     end
 
-    function ChatUtils:CheckWords(msg, name, word, word2)
-        if name == nil then return msg end
-        if word and string.find(msg, word, 0, true) then
-            return ChatUtils:CheckWord(msg, name, word)
-        elseif word2 and string.find(msg, word2, 0, true) then
-            return ChatUtils:CheckWord(msg, name, word2)
-        end
-
-        return msg
+    if rightWasDownTs < time() - 0.1 then
+        rightWasDown = false
     end
 
-    function ChatUtils:SetHyperlink(link)
-        local poi = string.find(link, ":", 0, true)
-        local typ = string.sub(link, 1, poi - 1)
-        if typ == "url" then
-            local url = string.sub(link, 5)
-            local tab = {}
-            tab.url = url
-            StaticPopup_Show("CLICK_LINK_URL", "", "", tab)
-
-            return true
-        elseif typ == "invite" or typ == "inv" or typ == "einladen" or typ == "layer" then
-            local name = string.sub(link, poi + 1)
-            if rightWasDown then
-                if C_GuildInfo then
-                    C_GuildInfo.Invite(name)
-                elseif GuildInvite then
-                    GuildInvite(name)
-                end
-
-                return true
-            else
-                if midWasDown then
-                    CommunitiesFrame:Show()
-                    ChatUtils:MSG("Currently only open the Window, later you can enter invitelink in settings to send the link directly to the player")
-                elseif C_PartyInfo and C_PartyInfo.InviteUnit then
-                    C_PartyInfo.InviteUnit(name)
-                elseif InviteUnit then
-                    InviteUnit(name)
-                end
-            end
-
-            return true
-        end
-
-        return false
+    if IsMouseButtonDown("MiddleButton") then
+        midWasDown = true
+        midWasDownTs = time()
     end
 
-    function GetColoredName(event, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12)
-        if not a2 then return a2 end
-        local chatType = strsub(event, 10)
-        if strsub(chatType, 1, 7) == "WHISPER" then
-            chatType = "WHISPER"
-        elseif strsub(chatType, 1, 7) == "CHANNEL" then
-            chatType = "CHANNEL" .. a8
+    if midWasDownTs < time() - 0.1 then
+        midWasDown = false
+    end
+
+    C_Timer.After(0.01, ChatUtils.ThinkClicks)
+end
+
+function ChatUtils:CheckWord(msg, name, word)
+    if name == nil then return msg end
+    local words = stringToTable(msg)
+    local res = ""
+    for i, v in pairs(words) do
+        if i > 0 then
+            res = res .. " "
         end
 
-        if chatType == "GUILD" then
-            a2 = Ambiguate(a2, "guild")
+        local isWholeWord = v:len() == word:len()
+        local w = string.gsub(v, word, "|cff" .. "FFFF00" .. "|H" .. word .. ":" .. name .. "|h" .. "[" .. word .. "]" .. "|h|r")
+        if isWholeWord then
+            res = res .. w
         else
-            a2 = Ambiguate(a2, "none")
+            res = res .. v
         end
+    end
 
-        local info = ChatTypeInfo[chatType]
-        if info and info.colorNameByClass and a12 and a12 ~= "" and a12 ~= 0 then
-            local _, class = GetPlayerInfoByGUID(a12)
-            if class then
-                local _, _, _, str = ChatUtils:GetClassColor(class)
-                if str then return format("|c%s%s|r", str, a2) end
+    return res
+end
+
+function ChatUtils:CheckWords(msg, name, word, word2)
+    if name == nil then return msg end
+    if word and string.find(msg, word, 0, true) then
+        return ChatUtils:CheckWord(msg, name, word)
+    elseif word2 and string.find(msg, word2, 0, true) then
+        return ChatUtils:CheckWord(msg, name, word2)
+    end
+
+    return msg
+end
+
+function ChatUtils:SetHyperlink(link)
+    local poi = string.find(link, ":", 0, true)
+    local typ = string.sub(link, 1, poi - 1)
+    if typ == "url" then
+        local url = string.sub(link, 5)
+        local tab = {}
+        tab.url = url
+        StaticPopup_Show("CLICK_LINK_URL", "", "", tab)
+
+        return true
+    elseif typ == "invite" or typ == "inv" or typ == "einladen" or typ == "layer" then
+        local name = string.sub(link, poi + 1)
+        if rightWasDown then
+            if C_GuildInfo then
+                C_GuildInfo.Invite(name)
+            elseif GuildInvite then
+                GuildInvite(name)
+            end
+
+            return true
+        else
+            if midWasDown then
+                CommunitiesFrame:Show()
+                ChatUtils:MSG("Currently only open the Window, later you can enter invitelink in settings to send the link directly to the player")
+            elseif C_PartyInfo and C_PartyInfo.InviteUnit then
+                C_PartyInfo.InviteUnit(name)
+            elseif InviteUnit then
+                InviteUnit(name)
             end
         end
 
-        return a2
+        return true
     end
 
-    function ChatUtils:ConvertMessage(typ, msg, name, ...)
-        msg = ChatUtils:CheckWords(msg, name, "invite", "inv")
-        msg = ChatUtils:CheckWords(msg, name, "einladen")
-        msg = ChatUtils:CheckWords(msg, name, "layer")
-        if GOLD_AMOUNT_SYMBOL then
-            msg = ChatUtils:ReplaceMoney(msg, strlower(GOLD_AMOUNT_SYMBOL), gold)
-            msg = ChatUtils:ReplaceMoney(msg, strupper(GOLD_AMOUNT_SYMBOL), gold)
-        end
+    return false
+end
 
-        if SILVER_AMOUNT_SYMBOL then
-            msg = ChatUtils:ReplaceMoney(msg, strlower(SILVER_AMOUNT_SYMBOL), silver)
-            msg = ChatUtils:ReplaceMoney(msg, strupper(SILVER_AMOUNT_SYMBOL), silver)
-        end
-
-        if COPPER_AMOUNT_SYMBOL then
-            msg = ChatUtils:ReplaceMoney(msg, strlower(COPPER_AMOUNT_SYMBOL), copper)
-            msg = ChatUtils:ReplaceMoney(msg, strupper(COPPER_AMOUNT_SYMBOL), copper)
-        end
-
-        return false, msg, name, ...
+function GetColoredName(event, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12)
+    if not a2 then return a2 end
+    local chatType = strsub(event, 10)
+    if strsub(chatType, 1, 7) == "WHISPER" then
+        chatType = "WHISPER"
+    elseif strsub(chatType, 1, 7) == "CHANNEL" then
+        chatType = "CHANNEL" .. a8
     end
 
+    if chatType == "GUILD" then
+        a2 = Ambiguate(a2, "guild")
+    else
+        a2 = Ambiguate(a2, "none")
+    end
+
+    local info = ChatTypeInfo[chatType]
+    if info and info.colorNameByClass and a12 and a12 ~= "" and a12 ~= 0 then
+        local _, class = GetPlayerInfoByGUID(a12)
+        if class then
+            local _, _, _, str = ChatUtils:GetClassColor(class)
+            if str then return format("|c%s%s|r", str, a2) end
+        end
+    end
+
+    return a2
+end
+
+local PLYCache = {}
+function ChatUtils:GetGUID(name)
+    return PLYCache[name]
+end
+
+function ChatUtils:FixName(name, realm)
+    if name and realm == nil or realm == "" then
+        local s1 = string.find(name, "-", 0, true)
+        if name and s1 then
+            realm = string.sub(name, s1 + 1)
+            name = string.sub(name, 1, s1 - 1)
+        else
+            realm = GetRealmName()
+        end
+    end
+
+    realm = string.gsub(realm, "-", "")
+    realm = string.gsub(realm, " ", "")
+
+    return name, realm
+end
+
+local levelTab = {}
+function ChatUtils:GetLevel(name, realm)
+    name, realm = ChatUtils:FixName(name, realm)
+
+    return levelTab[name .. "-" .. realm]
+end
+
+function ChatUtils:SetLevel(name, realm, level, from)
+    name, realm = ChatUtils:FixName(name, realm)
+    if name and realm then
+        levelTab[name .. "-" .. realm] = level
+    end
+end
+
+function ChatUtils:WhoScan()
+    for i = 1, C_FriendList.GetNumWhoResults() do
+        local info = C_FriendList.GetWhoInfo(i)
+        if info and info.fullName and info.level then
+            ChatUtils:SetLevel(info.fullName, nil, info.level, "WhoScan")
+        end
+    end
+end
+
+function ChatUtils:FriendScan()
+    for i = 1, C_FriendList.GetNumFriends() do
+        local info = C_FriendList.GetFriendInfoByIndex(i)
+        if info and info.name and info.level then
+            ChatUtils:SetLevel(info.name, nil, info.level, "FriendScan")
+        end
+    end
+end
+
+function ChatUtils:PartyScan()
+    local max = GetNumSubgroupMembers or GetNumPartyMembers
+    local success = true
+    for i = 1, max() do
+        local name, realm = UnitName("party" .. i)
+        if name then
+            if UnitLevel("party" .. i) == 0 then
+                success = false
+            else
+                ChatUtils:SetLevel(name, realm, UnitLevel("party" .. i), "PartyScan")
+            end
+        end
+    end
+
+    if not success then
+        C_Timer.After(0.1, ChatUtils.PartyScan)
+    end
+end
+
+function ChatUtils:RaidScan()
+    local max = GetNumGroupMembers or GetNumRaidMembers
+    for i = 1, max() do
+        local _, _, _, Level = GetRaidRosterInfo(i)
+        local Name, Server = UnitName("raid" .. i)
+        if Name then
+            ChatUtils:SetLevel(Name, Server, Level, "RaidScan")
+        end
+    end
+end
+
+function ChatUtils:GuildScan()
+    if IsInGuild() then
+        C_GuildInfo.GuildRoster()
+        local max = GetNumGuildMembers()
+        for i = 1, max do
+            local Name, _, _, Level = GetGuildRosterInfo(i)
+            local name, realm = Name:match("([^%-]+)%-?(.*)")
+            if name then
+                ChatUtils:SetLevel(name, realm, Level, "GuildScan")
+            end
+        end
+    end
+end
+
+function ChatUtils:Init()
+    ChatUtils:ThinkClicks()
     local chatTypes = {}
     for i, v in pairs(_G) do
         if string.find(i, "CHAT_MSG_") and not tContains(chatTypes, i) then
@@ -270,11 +396,6 @@ function ChatUtils:Init()
         )
 
         return msg
-    end
-
-    local PLYCache = {}
-    function ChatUtils:GetGUID(name)
-        return PLYCache[name]
     end
 
     local allowedTyp = {}
@@ -438,101 +559,7 @@ function ChatUtils:Init()
         ChatFrame_AddMessageEventFilter(typ, LOCALIconsFilter)
     end
 
-    function ChatUtils:FixName(name, realm)
-        if name and realm == nil or realm == "" then
-            local s1 = string.find(name, "-", 0, true)
-            if name and s1 then
-                realm = string.sub(name, s1 + 1)
-                name = string.sub(name, 1, s1 - 1)
-            else
-                realm = GetRealmName()
-            end
-        end
-
-        realm = string.gsub(realm, "-", "")
-        realm = string.gsub(realm, " ", "")
-
-        return name, realm
-    end
-
-    local levelTab = {}
-    function ChatUtils:GetLevel(name, realm)
-        name, realm = ChatUtils:FixName(name, realm)
-
-        return levelTab[name .. "-" .. realm]
-    end
-
-    function ChatUtils:SetLevel(name, realm, level, from)
-        name, realm = ChatUtils:FixName(name, realm)
-        if name and realm then
-            levelTab[name .. "-" .. realm] = level
-        end
-    end
-
     ChatUtils:SetLevel(UnitName("player"), nil, UnitLevel("player"))
-    function ChatUtils:WhoScan()
-        for i = 1, C_FriendList.GetNumWhoResults() do
-            local info = C_FriendList.GetWhoInfo(i)
-            if info and info.fullName and info.level then
-                ChatUtils:SetLevel(info.fullName, nil, info.level, "WhoScan")
-            end
-        end
-    end
-
-    function ChatUtils:FriendScan()
-        for i = 1, C_FriendList.GetNumFriends() do
-            local info = C_FriendList.GetFriendInfoByIndex(i)
-            print(info)
-            if info and info.name and info.level then
-                ChatUtils:SetLevel(info.name, nil, info.level, "FriendScan")
-            end
-        end
-    end
-
-    function ChatUtils:PartyScan()
-        local max = GetNumSubgroupMembers or GetNumPartyMembers
-        local success = true
-        for i = 1, max() do
-            local name, realm = UnitName("party" .. i)
-            if name then
-                if UnitLevel("party" .. i) == 0 then
-                    success = false
-                else
-                    ChatUtils:SetLevel(name, realm, UnitLevel("party" .. i), "PartyScan")
-                end
-            end
-        end
-
-        if not success then
-            C_Timer.After(0.1, ChatUtils.PartyScan)
-        end
-    end
-
-    function ChatUtils:RaidScan()
-        local max = GetNumGroupMembers or GetNumRaidMembers
-        for i = 1, max() do
-            local _, _, _, Level = GetRaidRosterInfo(i)
-            local Name, Server = UnitName("raid" .. i)
-            if Name then
-                ChatUtils:SetLevel(Name, Server, Level, "RaidScan")
-            end
-        end
-    end
-
-    function ChatUtils:GuildScan()
-        if IsInGuild() then
-            C_GuildInfo.GuildRoster()
-            local max = GetNumGuildMembers()
-            for i = 1, max do
-                local Name, _, _, Level = GetGuildRosterInfo(i)
-                local name, realm = Name:match("([^%-]+)%-?(.*)")
-                if name then
-                    ChatUtils:SetLevel(name, realm, Level, "GuildScan")
-                end
-            end
-        end
-    end
-
     local delay = 0.6
     local lf = CreateFrame("Frame", "IALevelFrame")
     lf:RegisterEvent("GROUP_ROSTER_UPDATE")
