@@ -12,8 +12,8 @@ local midWasDown = false
 local midWasDownTs = 0
 local moneyTab = {
     ["gold"] = {"gold", "Gold",},
-    ["silver"] = {"silver", "Silver", "silber", "Silber"},
-    ["copper"] = {"copper", "Copper", "kupfer", "Kupfer"}
+    ["silver"] = {"silver", "Silver", "SILVER", "silber", "Silber", "SILBER"},
+    ["copper"] = {"copper", "Copper", "COPPER", "kupfer", "Kupfer", "KUPFER"}
 }
 
 local moneyTabIcons = {
@@ -30,19 +30,19 @@ function ChatUtils:ReplaceMoney(message, word, icon)
             local rIcon = format(moneyTabIcons[word], fs, fs)
             if rIcon then
                 for i, sWord in pairs(moneyTab[word]) do
-                    message = message:gsub("^(%d+)" .. sWord, "%1" .. rIcon .. " ")
-                    message = message:gsub("^(%d+) " .. sWord, "%1" .. rIcon .. " ")
-                    message = message:gsub("[^%w](%d+)" .. sWord, "%1" .. rIcon .. " ")
-                    message = message:gsub("[^%w](%d+) " .. sWord, "%1 " .. rIcon .. " ")
+                    message = message:gsub("^(%d+)" .. sWord, "%1" .. rIcon .. "")
+                    message = message:gsub("^(%d+) " .. sWord, "%1" .. rIcon .. "")
+                    message = message:gsub("[^%w](%d+)" .. sWord, " %1" .. rIcon .. "")
+                    message = message:gsub("[^%w](%d+) " .. sWord, " %1" .. rIcon .. "")
                 end
             end
         else
             local rIcon = format(icon, fs, fs)
             if rIcon then
-                message = message:gsub("^(%d+)" .. word, "%1" .. rIcon .. " ")
-                message = message:gsub("^(%d+) " .. word, "%1" .. rIcon .. " ")
-                message = message:gsub("[^%w](%d+)" .. word, "%1" .. rIcon .. " ")
-                message = message:gsub("[^%w](%d+) " .. word, "%1 " .. rIcon .. " ")
+                message = message:gsub("^(%d+)" .. word, "%1" .. rIcon .. "")
+                message = message:gsub("^(%d+) " .. word, "%1" .. rIcon .. "")
+                message = message:gsub("[^%w](%d+)" .. word, " %1" .. rIcon .. "")
+                message = message:gsub("[^%w](%d+) " .. word, " %1" .. rIcon .. "")
             end
         end
     end

@@ -988,7 +988,7 @@ function D4:CreateDropdown(key, value, choices, parent, func)
     end
 
     local text = parent:CreateFontString(nil, nil, "GameFontNormal")
-    text:SetPoint("BOTTOMLEFT", DropDown, "TOPLEFT", X + 4, 2)
+    text:SetPoint("BOTTOMLEFT", DropDown, "TOPLEFT", X + 16, 2)
     text:SetText(D4:Trans("LID_" .. key))
 
     return DropDown
