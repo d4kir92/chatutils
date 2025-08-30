@@ -182,7 +182,7 @@ function ChatUtils:ChatOnlyBig(str, imax)
     end
 
     if string.find(res, "-", string.len(res), true) then
-        res = string.gsub(str, "[^%u%d]", "")
+        res = string.gsub(str, "[^%u%d%.]", "")
     end
 
     return res
