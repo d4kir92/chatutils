@@ -52,7 +52,7 @@ function ChatUtils:GetMoney()
     if GOLD_AMOUNT_SYMBOL then
         local sGold = string.gsub(GOLD_AMOUNT_SYMBOL, "%%d", "")
         sGold = string.gsub(sGold, " ", "")
-        gShort = sGold
+        gShort = strlower(sGold)
     end
 
     if GOLD_AMOUNT then
@@ -64,7 +64,7 @@ function ChatUtils:GetMoney()
     if SILVER_AMOUNT_SYMBOL then
         local sSilver = string.gsub(SILVER_AMOUNT_SYMBOL, "%%d", "")
         sSilver = string.gsub(sSilver, " ", "")
-        sShort = sSilver
+        sShort = strlower(sSilver)
     end
 
     if SILVER_AMOUNT then
@@ -76,7 +76,7 @@ function ChatUtils:GetMoney()
     if COPPER_AMOUNT_SYMBOL then
         local sCopper = string.gsub(COPPER_AMOUNT_SYMBOL, "%%d", "")
         sCopper = string.gsub(sCopper, " ", "")
-        cShort = sCopper
+        cShort = strlower(sCopper)
     end
 
     if COPPER_AMOUNT then
@@ -127,6 +127,8 @@ function ChatUtils:ReplaceMoney(message, sWord, lWord, icon)
         if rIcon then
             message = ChatUtils:ReplaceMoneyStart(message, sWord, rIcon)
             message = ChatUtils:ReplaceMoneyMid(message, sWord, rIcon)
+            message = ChatUtils:ReplaceMoneyStart(message, strupper(sWord), rIcon)
+            message = ChatUtils:ReplaceMoneyMid(message, strupper(sWord), rIcon)
         end
     end
 
@@ -155,13 +157,14 @@ end
 
 function ChatUtils:ChatOnlyBig(str, imax)
     if str == nil then return nil end
-    local smax = imax or 3
-    local res = string.gsub(str, "[^%u-]", "")
+    local smax = imax or 4
+    local res = string.gsub(str, "[^%u%d-]", "")
     -- shorten
     if #res > smax then
         res = string.sub(res, 1, smax)
     end
 
+    res = string.gsub(res, "(%d+)", "%1|")
     -- 1-3 => upper
     if #str <= smax then
         res = string.upper(res)
