@@ -288,10 +288,12 @@ function GetColoredName(event, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12
         chatType = "CHANNEL" .. a8
     end
 
-    if chatType == "GUILD" then
-        a2 = Ambiguate(a2, "guild")
-    else
-        a2 = Ambiguate(a2, "none")
+    if Ambiguate then
+        if chatType == "GUILD" then
+            a2 = Ambiguate(a2, "guild")
+        else
+            a2 = Ambiguate(a2, "none")
+        end
     end
 
     local info = ChatTypeInfo[chatType]
@@ -343,6 +345,7 @@ function ChatUtils:SetLevel(name, realm, level, from)
 end
 
 function ChatUtils:WhoScan()
+    if C_FriendList == nil then return end
     for i = 1, C_FriendList.GetNumWhoResults() do
         local info = C_FriendList.GetWhoInfo(i)
         if info and info.fullName and info.level then
@@ -352,6 +355,7 @@ function ChatUtils:WhoScan()
 end
 
 function ChatUtils:FriendScan()
+    if C_FriendList == nil then return end
     for i = 1, C_FriendList.GetNumFriends() do
         local info = C_FriendList.GetFriendInfoByIndex(i)
         if info and info.name and info.level then
@@ -413,9 +417,11 @@ function ChatUtils:Init()
         end
     end
 
-    for typ in next, getmetatable(ChatTypeInfo).__index do
-        if not tContains(chatTypes, "CHAT_MSG_" .. typ) then
-            tinsert(chatTypes, "CHAT_MSG_" .. typ)
+    if ChatTypeInfo and getmetatable(ChatTypeInfo) then
+        for typ in next, getmetatable(ChatTypeInfo).__index do
+            if not tContains(chatTypes, "CHAT_MSG_" .. typ) then
+                tinsert(chatTypes, "CHAT_MSG_" .. typ)
+            end
         end
     end
 
@@ -531,7 +537,7 @@ function ChatUtils:Init()
 
     local function removeTimestamp(message)
         local result = string.gsub(message, "^[:%d%d]+[%s][AM]*[PM]*[%s]*", "")
-        if GetChatTimestampFormat() then
+        if GetChatTimestampFormat and GetChatTimestampFormat() then
             local timestamp = BetterDate(GetChatTimestampFormat(), time())
             timestamp = string.sub(timestamp, 1, #timestamp - 1)
 
