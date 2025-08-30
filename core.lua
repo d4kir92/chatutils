@@ -164,7 +164,7 @@ function ChatUtils:ChatOnlyBig(str, imax)
         res = string.sub(res, 1, smax)
     end
 
-    res = string.gsub(res, "(%d+)", "%1|")
+    res = string.gsub(res, "(%d+)", "%1.")
     -- 1-3 => upper
     if #str <= smax then
         res = string.upper(res)
@@ -182,7 +182,7 @@ function ChatUtils:ChatOnlyBig(str, imax)
     end
 
     if string.find(res, "-", string.len(res), true) then
-        res = string.gsub(str, "[^%u]", "")
+        res = string.gsub(str, "[^%u%d]", "")
     end
 
     return res
