@@ -42,6 +42,9 @@
         "MouseIsOver",
         "ChatEdit_ParseText",
         "ChatEdit_SendText",
-        "ChatFrame1"
+        "ChatFrame1",
+        "GOLD_AMOUNT",
+        "SILVER_AMOUNT",
+        "COPPER_AMOUNT"
     ]
 }

@@ -11,35 +11,122 @@ local rightWasDownTs = 0
 local midWasDown = false
 local midWasDownTs = 0
 local moneyTab = {
-    ["gold"] = {"gold", "Gold",},
-    ["silver"] = {"silver", "Silver", "SILVER", "silber", "Silber", "SILBER"},
-    ["copper"] = {"copper", "Copper", "COPPER", "kupfer", "Kupfer", "KUPFER"}
+    ["gold"] = {},
+    ["silver"] = {},
+    ["copper"] = {}
 }
 
+local function AddMoneyLang(lang, wg, ws, wc)
+    if moneyTab["gold"] and not tContains(moneyTab["gold"], wg) then
+        tinsert(moneyTab["gold"], wg)
+    end
+
+    if moneyTab["silver"] and not tContains(moneyTab["silver"], ws) then
+        tinsert(moneyTab["silver"], ws)
+    end
+
+    if moneyTab["copper"] and not tContains(moneyTab["copper"], wc) then
+        tinsert(moneyTab["copper"], wc)
+    end
+
+    if false then
+        print(lang)
+    end
+end
+
+AddMoneyLang("enUS", "Gold", "Silver", "Copper")
+AddMoneyLang("deDE", "Gold", "Silber", "Kupfer")
 local moneyTabIcons = {
     ["gold"] = gold,
     ["silver"] = silver,
     ["copper"] = copper
 }
 
-function ChatUtils:ReplaceMoney(message, word, icon)
+local gShort = "g"
+local gLong = "Gold"
+local sShort = "s"
+local sLong = "Silver"
+local cShort = "c"
+local cLong = "Copper"
+function ChatUtils:GetMoney()
+    if GOLD_AMOUNT_SYMBOL then
+        local sGold = string.gsub(GOLD_AMOUNT_SYMBOL, "%%d", "")
+        sGold = string.gsub(sGold, " ", "")
+        gShort = sGold
+    end
+
+    if GOLD_AMOUNT then
+        local sGold = string.gsub(GOLD_AMOUNT, "%%d", "")
+        sGold = string.gsub(sGold, " ", "")
+        gLong = sGold
+    end
+
+    if SILVER_AMOUNT_SYMBOL then
+        local sSilver = string.gsub(SILVER_AMOUNT_SYMBOL, "%%d", "")
+        sSilver = string.gsub(sSilver, " ", "")
+        sShort = sSilver
+    end
+
+    if SILVER_AMOUNT then
+        local sSilver = string.gsub(SILVER_AMOUNT, "%%d", "")
+        sSilver = string.gsub(sSilver, " ", "")
+        sLong = sSilver
+    end
+
+    if COPPER_AMOUNT_SYMBOL then
+        local sCopper = string.gsub(COPPER_AMOUNT_SYMBOL, "%%d", "")
+        sCopper = string.gsub(sCopper, " ", "")
+        cShort = sCopper
+    end
+
+    if COPPER_AMOUNT then
+        local sCopper = string.gsub(COPPER_AMOUNT, "%%d", "")
+        sCopper = string.gsub(sCopper, " ", "")
+        cLong = sCopper
+    end
+end
+
+ChatUtils:GetMoney()
+function ChatUtils:ReplaceMoneyStart(message, word, rIcon)
+    return message:gsub("^(%d+)%s*" .. word, "%1" .. rIcon)
+end
+
+function ChatUtils:ReplaceMoneyMid(message, word, rIcon)
+    return message:gsub("(%s%d+)%s*" .. word, "%1" .. rIcon)
+end
+
+function ChatUtils:ReplaceMoney(message, sWord, lWord, icon)
     local _, fs = ChatFrame1:GetFont()
     if fs then
         fs = fs - 2
-        if moneyTab[word] then
-            local rIcon = format(moneyTabIcons[word], fs, fs)
+        if moneyTab[strlower(lWord)] then
+            local rIcon = format(moneyTabIcons[strlower(lWord)], fs, fs)
             if rIcon then
-                for i, sWord in pairs(moneyTab[word]) do
-                    message = message:gsub("^(%d+)%s*" .. sWord, "%1" .. rIcon)
-                    message = message:gsub("(%s%d+)%s*" .. sWord, "%1" .. rIcon)
+                for i, word in pairs(moneyTab[strlower(lWord)]) do
+                    message = ChatUtils:ReplaceMoneyStart(message, word, rIcon)
+                    message = ChatUtils:ReplaceMoneyMid(message, word, rIcon)
+                    message = ChatUtils:ReplaceMoneyStart(message, strlower(word), rIcon)
+                    message = ChatUtils:ReplaceMoneyMid(message, strlower(word), rIcon)
+                    message = ChatUtils:ReplaceMoneyStart(message, strupper(word), rIcon)
+                    message = ChatUtils:ReplaceMoneyMid(message, strupper(word), rIcon)
                 end
             end
         else
             local rIcon = format(icon, fs, fs)
             if rIcon then
-                message = message:gsub("^(%d+)%s*" .. word, "%1" .. rIcon)
-                message = message:gsub("(%s%d+)%s*" .. word, "%1" .. rIcon)
+                message = ChatUtils:ReplaceMoneyStart(message, lWord, rIcon)
+                message = ChatUtils:ReplaceMoneyMid(message, lWord, rIcon)
+                message = ChatUtils:ReplaceMoneyStart(message, strlower(lWord), rIcon)
+                message = ChatUtils:ReplaceMoneyMid(message, strlower(lWord), rIcon)
+                message = ChatUtils:ReplaceMoneyStart(message, strupper(lWord), rIcon)
+                message = ChatUtils:ReplaceMoneyMid(message, strupper(lWord), rIcon)
             end
+        end
+
+        local rIcon = format(icon, fs, fs)
+        if rIcon then
+            message = ChatUtils:ReplaceMoneyStart(message, sWord, rIcon)
+            message = ChatUtils:ReplaceMoneyMid(message, sWord, rIcon)
         end
     end
 
@@ -59,23 +146,9 @@ function ChatUtils:ConvertMessage(typ, msg, name, ...)
     msg = ChatUtils:CheckWords(msg, name, "invite", "inv")
     msg = ChatUtils:CheckWords(msg, name, "einladen")
     msg = ChatUtils:CheckWords(msg, name, "layer")
-    msg = ChatUtils:ReplaceMoney(msg, "gold", gold)
-    msg = ChatUtils:ReplaceMoney(msg, "silver", gold)
-    msg = ChatUtils:ReplaceMoney(msg, "copper", gold)
-    if GOLD_AMOUNT_SYMBOL then
-        msg = ChatUtils:ReplaceMoney(msg, strlower(GOLD_AMOUNT_SYMBOL), gold)
-        msg = ChatUtils:ReplaceMoney(msg, strupper(GOLD_AMOUNT_SYMBOL), gold)
-    end
-
-    if SILVER_AMOUNT_SYMBOL then
-        msg = ChatUtils:ReplaceMoney(msg, strlower(SILVER_AMOUNT_SYMBOL), silver)
-        msg = ChatUtils:ReplaceMoney(msg, strupper(SILVER_AMOUNT_SYMBOL), silver)
-    end
-
-    if COPPER_AMOUNT_SYMBOL then
-        msg = ChatUtils:ReplaceMoney(msg, strlower(COPPER_AMOUNT_SYMBOL), copper)
-        msg = ChatUtils:ReplaceMoney(msg, strupper(COPPER_AMOUNT_SYMBOL), copper)
-    end
+    msg = ChatUtils:ReplaceMoney(msg, gShort, gLong, gold)
+    msg = ChatUtils:ReplaceMoney(msg, sShort, sLong, silver)
+    msg = ChatUtils:ReplaceMoney(msg, cShort, cLong, copper)
 
     return false, msg, name, ...
 end
