@@ -188,28 +188,6 @@ function ChatUtils:ChatOnlyBig(str, imax)
     return res
 end
 
-function ChatUtils:ThinkClicks()
-    if IsMouseButtonDown("RightButton") then
-        rightWasDown = true
-        rightWasDownTs = time()
-    end
-
-    if rightWasDownTs < time() - 0.1 then
-        rightWasDown = false
-    end
-
-    if IsMouseButtonDown("MiddleButton") then
-        midWasDown = true
-        midWasDownTs = time()
-    end
-
-    if midWasDownTs < time() - 0.1 then
-        midWasDown = false
-    end
-
-    C_Timer.After(0.01, ChatUtils.ThinkClicks)
-end
-
 function ChatUtils:CheckWord(msg, name, word)
     if name == nil then return msg end
     local words = stringToTable(msg)
@@ -242,7 +220,8 @@ function ChatUtils:CheckWords(msg, name, word, word2)
     return msg
 end
 
-function ChatUtils:SetHyperlink(link)
+function ChatUtils:SetHyperlink(link, text, button)
+    print("link", link, "text", text, "button", button)
     local poi = string.find(link, ":", 0, true)
     local typ = string.sub(link, 1, poi - 1)
     if typ == "url" then
@@ -254,7 +233,7 @@ function ChatUtils:SetHyperlink(link)
         return true
     elseif typ == "invite" or typ == "inv" or typ == "einladen" or typ == "layer" then
         local name = string.sub(link, poi + 1)
-        if rightWasDown then
+        if button == "RightButton" then
             if C_GuildInfo then
                 C_GuildInfo.Invite(name)
             elseif GuildInvite then
@@ -262,15 +241,13 @@ function ChatUtils:SetHyperlink(link)
             end
 
             return true
-        else
-            if midWasDown then
-                CommunitiesFrame:Show()
-                ChatUtils:MSG("Currently only open the Window, later you can enter invitelink in settings to send the link directly to the player")
-            elseif C_PartyInfo and C_PartyInfo.InviteUnit then
-                C_PartyInfo.InviteUnit(name)
-            elseif InviteUnit then
-                InviteUnit(name)
-            end
+        elseif button == "MiddleButton" then
+            CommunitiesFrame:Show()
+            ChatUtils:MSG("Currently only open the Window, later you can enter invitelink in settings to send the link directly to the player")
+        elseif C_PartyInfo and C_PartyInfo.InviteUnit then
+            C_PartyInfo.InviteUnit(name)
+        elseif InviteUnit then
+            InviteUnit(name)
         end
 
         return true
@@ -409,7 +386,6 @@ function ChatUtils:GuildScan()
 end
 
 function ChatUtils:Init()
-    ChatUtils:ThinkClicks()
     local chatTypes = {}
     for i, v in pairs(_G) do
         if string.find(i, "CHAT_MSG_") and not tContains(chatTypes, i) then
@@ -433,18 +409,17 @@ function ChatUtils:Init()
 
     if ChatUtils:GetWoWBuild() == "RETAIL" then
         hooksecurefunc(
-            ItemRefTooltip,
-            "SetHyperlink",
-            function(sel, link)
-                ChatUtils:SetHyperlink(link)
+            "SetItemRef",
+            function(link, text, button)
+                ChatUtils:SetHyperlink(link, text, button)
             end
         )
     else
         ItemRefTooltip.OldSetHyperlink = ItemRefTooltip.SetHyperlink
-        function ItemRefTooltip:SetHyperlink(link)
-            local worked = ChatUtils:SetHyperlink(link)
+        function ItemRefTooltip:SetHyperlink(link, text, button)
+            local worked = ChatUtils:SetHyperlink(link, text, button)
             if not worked then
-                ItemRefTooltip:OldSetHyperlink(link)
+                ItemRefTooltip:OldSetHyperlink(link, text, button)
             end
         end
     end
