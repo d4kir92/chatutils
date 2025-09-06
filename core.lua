@@ -6,10 +6,6 @@ local GetNumRaidMembers = getglobal("GetNumRaidMembers")
 local gold = "|TInterface\\MoneyFrame\\UI-GoldIcon:%d:%d:0:0|t"
 local silver = "|TInterface\\MoneyFrame\\UI-SilverIcon:%d:%d:0:0|t"
 local copper = "|TInterface\\MoneyFrame\\UI-CopperIcon:%d:%d:0:0|t"
-local rightWasDown = false
-local rightWasDownTs = 0
-local midWasDown = false
-local midWasDownTs = 0
 local moneyTab = {
     ["gold"] = {},
     ["silver"] = {},
@@ -30,7 +26,7 @@ local function AddMoneyLang(lang, wg, ws, wc)
     end
 
     if false then
-        print(lang)
+        ChatUtils:MSG(lang)
     end
 end
 
@@ -221,7 +217,6 @@ function ChatUtils:CheckWords(msg, name, word, word2)
 end
 
 function ChatUtils:SetHyperlink(link, text, button)
-    print("link", link, "text", text, "button", button)
     local poi = string.find(link, ":", 0, true)
     local typ = string.sub(link, 1, poi - 1)
     if typ == "url" then
