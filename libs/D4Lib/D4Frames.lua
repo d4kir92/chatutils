@@ -366,21 +366,29 @@ function D4:CreateSlider(tab)
     if DoesTemplateExist and DoesTemplateExist("UISliderTemplate") then
         slider = CreateFrame("Slider", tab.key, tab.parent, "UISliderTemplate")
     else
-        slider = CreateFrame("Slider", tab.key, tab.parent)
+        slider = CreateFrame("Slider", tab.key, tab.parent, "OptionsSliderTemplate")
     end
 
     slider:SetSize(tab.sw, 16)
     slider:SetPoint(unpack(tab.pTab))
-    if slider.Low == nil then
+    if getglobal(tab.key .. "Low") then
+        slider.Low = getglobal(tab.key .. "Low")
+    elseif slider.Low == nil then
         slider.Low = slider:CreateFontString(nil, nil, "GameFontNormal")
         slider.Low:SetPoint("BOTTOMLEFT", slider, "BOTTOMLEFT", 0, -12)
         slider.Low:SetTextColor(1, 1, 1)
     end
 
-    if slider.High == nil then
+    if getglobal(tab.key .. "High") then
+        slider.High = getglobal(tab.key .. "High")
+    elseif slider.High == nil then
         slider.High = slider:CreateFontString(nil, nil, "GameFontNormal")
         slider.High:SetPoint("BOTTOMRIGHT", slider, "BOTTOMRIGHT", 0, -12)
         slider.High:SetTextColor(1, 1, 1)
+    end
+
+    if getglobal(tab.key .. "High") then
+        setglobal(tab.key .. "High", slider.High)
     end
 
     if slider.Text == nil then

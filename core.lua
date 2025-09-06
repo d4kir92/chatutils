@@ -88,11 +88,11 @@ end
 
 ChatUtils:GetMoney()
 function ChatUtils:ReplaceMoneyStart(message, word, rIcon)
-    return message:gsub("^(%d+)%s*" .. word, "%1" .. rIcon)
+    return message:gsub("^(%d+)%s*" .. word .. "%f[%A]", "%1" .. rIcon)
 end
 
 function ChatUtils:ReplaceMoneyMid(message, word, rIcon)
-    return message:gsub("(%s%d+)%s*" .. word, "%1" .. rIcon)
+    return message:gsub("(%s%d+)%s*" .. word .. "%f[%A]", "%1" .. rIcon)
 end
 
 function ChatUtils:ReplaceMoney(message, sWord, lWord, icon)
