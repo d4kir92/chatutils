@@ -1,5 +1,5 @@
 ## Interface: 20505
-## Version: 0.3.57
+## Version: 0.3.58
 ## Title: C|cff3FC7EBhat|rU|cff3FC7EBtils|r |T133457:16:16:0:0|t by |cff3FC7EBD4KiR |T132115:16:16:0:0|t
 ## Notes: An add-on that allows you to add features to chat, such as: invitations to a guild/group, symbols for classes/races/items, etc.
 ## Notes-deDE: Ein Add-on, mit dem Sie Funktionen zum Chat hinzufügen können, z. B.: Einladung zu einer Gilde/Gruppe, Symbole für Klassen/Rassen/Gegenstände usw.
