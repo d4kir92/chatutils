@@ -141,7 +141,7 @@ local function stringToTable(str)
 end
 
 function ChatUtils:ConvertMessage(typ, msg, name, ...)
-    msg = ChatUtils:CheckWords(msg, name, "invite", "inv")
+    msg = ChatUtils:CheckWords(msg, name, "invite", "ginv", "inv")
     msg = ChatUtils:CheckWords(msg, name, "einladen")
     msg = ChatUtils:CheckWords(msg, name, "layer")
     msg = ChatUtils:ReplaceMoney(msg, gShort, gLong, gold)
@@ -205,12 +205,14 @@ function ChatUtils:CheckWord(msg, name, word)
     return res
 end
 
-function ChatUtils:CheckWords(msg, name, word, word2)
+function ChatUtils:CheckWords(msg, name, word, word2, word3)
     if name == nil then return msg end
     if word and string.find(msg, word, 0, true) then
         return ChatUtils:CheckWord(msg, name, word)
     elseif word2 and string.find(msg, word2, 0, true) then
         return ChatUtils:CheckWord(msg, name, word2)
+    elseif word3 and string.find(msg, word3, 0, true) then
+        return ChatUtils:CheckWord(msg, name, word3)
     end
 
     return msg
@@ -226,7 +228,7 @@ function ChatUtils:SetHyperlink(link, text, button)
         StaticPopup_Show("CLICK_LINK_URL", "", "", tab)
 
         return true
-    elseif typ == "invite" or typ == "inv" or typ == "einladen" or typ == "layer" then
+    elseif typ == "invite" or typ == "inv" or typ == "ginv" or typ == "einladen" or typ == "layer" then
         local name = string.sub(link, poi + 1)
         if button == "RightButton" then
             if C_GuildInfo then
