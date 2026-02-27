@@ -519,19 +519,6 @@ function ChatUtils:Init()
         return msg, author
     end
 
-    local function removeTimestamp(message)
-        message = tostring(message or "")
-        local result = message:gsub("^[:%d%d]+[%s][AP]M[%s]*", "")
-        if GetChatTimestampFormat and GetChatTimestampFormat() then
-            local timestamp = BetterDate(GetChatTimestampFormat(), time())
-            timestamp = string.sub(timestamp, 1, #timestamp - 1)
-
-            return result, "[" .. timestamp .. "] "
-        end
-
-        return result
-    end
-
     local hooks = {}
     local function SafeGsub(text, pattern, repl, n)
         local ok, res = pcall(string.gsub, text, pattern, repl, n)
@@ -539,15 +526,40 @@ function ChatUtils:Init()
         return ok and res or text
     end
 
+    local function SafeSplit(text, sep)
+        if not text then return {} end
+        local ok, res = pcall(
+            function()
+                local t = {}
+                for s in string.gmatch(text, "([^" .. sep .. "]+)") do
+                    t[#t + 1] = s
+                end
+
+                return t
+            end
+        )
+
+        return ok and res or {text}
+    end
+
     local function AddMessage(sel, message, author, ...)
         if isPrinting then return hooks[sel](sel, message, author, ...) end
-        local msg = tostring(message or "")
-        local timestamp
-        msg, timestamp = removeTimestamp(msg)
+        local msg = "" .. (message or "")
         local clean = SafeGsub(msg, "|", "")
         clean = SafeGsub(clean, "h%[", ":")
         clean = SafeGsub(clean, "%]h", ":")
-        local _, channel, _, channelName, chanIndex = strsplit(":", clean)
+        clean = SafeGsub(clean, "^[:%d%d]+[%s][AP]M[%s]*", "")
+        local timestamp
+        if GetChatTimestampFormat and GetChatTimestampFormat() then
+            local ts = BetterDate(GetChatTimestampFormat(), time())
+            ts = string.sub(ts, 1, #ts - 1)
+            timestamp = "[" .. ts .. "] "
+        end
+
+        local parts = SafeSplit(clean, ":")
+        local channel = parts[2]
+        local channelName = parts[4]
+        local chanIndex = parts[5]
         local chanName
         if channel and channel == "channel" and channelName then
             local s1, s2 = channelName:find("%[(.-)%]")
