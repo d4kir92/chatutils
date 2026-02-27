@@ -155,18 +155,30 @@ function ChatUtils:ChatOnlyBig(str, imax)
     if str == nil then return nil end
     local smax = imax or 4
     local res = string.gsub(str, "[^%u%d-]", "")
-    -- shorten
+    if res:match("^%d+$") then
+        local num = str:match("^(%d+%.)") or (res .. ".")
+        local text = str:match("%.%s*(.+)$") or ""
+        text = text:gsub("[^%a]", "")
+        text = text:sub(1, 3):upper()
+
+        return num .. " " .. text
+    end
+
+    if #res == 0 then
+        local fallbackLen = math.min(3, #str)
+
+        return string.upper(string.sub(str, 1, fallbackLen))
+    end
+
     if #res > smax then
         res = string.sub(res, 1, smax)
     end
 
     res = string.gsub(res, "(%d+)", "%1.")
-    -- 1-3 => upper
     if #str <= smax then
         res = string.upper(res)
     end
 
-    -- no upper?
     if #res <= 0 then
         if #str <= smax then
             res = string.upper(str)
@@ -508,24 +520,35 @@ function ChatUtils:Init()
     end
 
     local function removeTimestamp(message)
-        local result = string.gsub(message, "^[:%d%d]+[%s][AM]*[PM]*[%s]*", "")
+        message = tostring(message or "")
+        local result = message:gsub("^[:%d%d]+[%s][AP]M[%s]*", "")
         if GetChatTimestampFormat and GetChatTimestampFormat() then
             local timestamp = BetterDate(GetChatTimestampFormat(), time())
             timestamp = string.sub(timestamp, 1, #timestamp - 1)
 
-            return result, "[" .. timestamp .. "]"
+            return result, "[" .. timestamp .. "] "
         end
 
         return result
     end
 
     local hooks = {}
+    local function SafeGsub(text, pattern, repl, n)
+        local ok, res = pcall(string.gsub, text, pattern, repl, n)
+
+        return ok and res or text
+    end
+
     local function AddMessage(sel, message, author, ...)
-        local chanName = nil
-        local timestamp = nil
-        message, timestamp = removeTimestamp(message)
-        local sear = message:gsub("|", ""):gsub("h%[", ":"):gsub("%]h", ":")
-        local _, channel, _, channelName, chanIndex = string.split(":", sear)
+        if isPrinting then return hooks[sel](sel, message, author, ...) end
+        local msg = tostring(message or "")
+        local timestamp
+        msg, timestamp = removeTimestamp(msg)
+        local clean = SafeGsub(msg, "|", "")
+        clean = SafeGsub(clean, "h%[", ":")
+        clean = SafeGsub(clean, "%]h", ":")
+        local _, channel, _, channelName, chanIndex = strsplit(":", clean)
+        local chanName
         if channel and channel == "channel" and channelName then
             local s1, s2 = channelName:find("%[(.-)%]")
             if s1 and s2 then
@@ -537,65 +560,47 @@ function ChatUtils:Init()
 
         if channel then
             chanName = chanName or _G["CHAT_MSG_" .. channel]
-            local chanFormat = _G["CHAT_" .. channel .. "_GET"]
-            if chanFormat == nil and channelName then
-                chanFormat = _G["CHAT_" .. channelName .. "_GET"]
-            end
-
-            if chanFormat == nil and chanIndex then
-                chanFormat = _G["CHAT_" .. chanIndex .. "_GET"]
-            end
-
+            local chanFormat = _G["CHAT_" .. channel .. "_GET"] or (channelName and _G["CHAT_" .. channelName .. "_GET"]) or (chanIndex and _G["CHAT_" .. chanIndex .. "_GET"])
             if chanFormat then
-                chanFormat = chanFormat:gsub("%s", "")
-                if channelName and channelName == "EMOTE" then
-                    message = message:gsub(chanFormat, " ", 1)
+                chanFormat = SafeGsub(chanFormat, "%s", "")
+                if channelName == "EMOTE" then
+                    msg = SafeGsub(msg, chanFormat, " ", 1)
                 else
-                    message = message:gsub(chanFormat, ":", 1)
+                    msg = SafeGsub(msg, chanFormat, ":", 1)
                 end
             end
 
-            if CHUT["USESMALLCHANNELNAMES"] then
-                local leaderChannel = _G["CHAT_MSG_" .. channel .. "_LEADER"]
-                if leaderChannel == nil then
-                    leaderChannel = _G[channel .. "_LEADER"]
-                end
-
-                if leaderChannel then
-                    message = ChatUtils:ReplaceStr(message, leaderChannel, ChatUtils:ChatOnlyBig(leaderChannel))
-                end
-
-                if chanName then
-                    message = ChatUtils:ReplaceStr(message, chanName, ChatUtils:ChatOnlyBig(chanName))
-                elseif channelName then
-                    chanName = _G["CHAT_MSG_" .. channelName]
-                    if chanName then
-                        message = "[" .. ChatUtils:ChatOnlyBig(chanName, 1) .. "] " .. message
-                    end
+            if CHUT and CHUT["USESMALLCHANNELNAMES"] and chanName then
+                local ok, replaced = pcall(function() return ChatUtils:ReplaceStr(msg, chanName, ChatUtils:ChatOnlyBig(chanName)) end)
+                if ok and replaced then
+                    msg = replaced
                 end
             end
 
-            message, author = LOCALChatAddPlayerIcons(message, author, 1)
+            local ok, newMsg, newAuthor = pcall(LOCALChatAddPlayerIcons, msg, author, 1)
+            if ok then
+                msg = newMsg or msg
+                author = newAuthor or author
+            end
         end
 
         if timestamp then
-            message = timestamp .. message
+            msg = timestamp .. msg
         end
 
-        return hooks[sel](sel, message, author, ...)
+        return hooks[sel](sel, msg, author, ...)
     end
 
-    for index = 1, NUM_CHAT_WINDOWS do
-        if index ~= 2 then
-            local frame = _G["ChatFrame" .. index]
-            if frame then
+    for i = 1, NUM_CHAT_WINDOWS do
+        if i ~= 2 then
+            local frame = _G["ChatFrame" .. i]
+            if frame and not hooks[frame] then
                 hooks[frame] = frame.AddMessage
                 frame.AddMessage = AddMessage
             end
         end
     end
 
-    -- Item Icons
     local function LOCALIconsFilter(sel, typ, msg, author, ...)
         local guid = select(10, ...)
         if author and guid then
