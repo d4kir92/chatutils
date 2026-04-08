@@ -442,7 +442,7 @@ function ChatUtils:Init()
                 if typ == "item" then
                     id = string.match(id, "(%d+)")
                     local itemName, _, _, _, _, _, _, _, _, itemTexture = ChatUtils:GetItemInfo(id)
-                    if itemName and itemTexture then
+                    if itemName and itemTexture and not msg:find("|T" .. itemTexture, 1, true) then
                         if CHUT["USESMALLCHANNELNAMES"] then
                             return "|T" .. itemTexture .. ":0|t" .. itemString
                         else
