@@ -152,48 +152,34 @@ function ChatUtils:ConvertMessage(typ, msg, name, ...)
 end
 
 function ChatUtils:ChatOnlyBig(str, imax)
-    if str == nil then return nil end
+    if not str then return nil end
     local smax = imax or 4
-    local res = string.gsub(str, "[^%u%d-]", "")
+    local res = str:gsub("[^%u%d-]", "")
     if res:match("^%d+$") then
         local num = str:match("^(%d+%.)") or (res .. ".")
         local text = str:match("%.%s*(.+)$") or ""
-        text = text:gsub("[^%a]", "")
-        text = text:sub(1, 3):upper()
+        -- Kürze Text auf 3 Zeichen und mache ihn groß
+        text = text:gsub("[^%a]", ""):sub(1, 3):upper()
 
         return num .. " " .. text
     end
 
     if #res == 0 then
-        local fallbackLen = math.min(3, #str)
-
-        return string.upper(string.sub(str, 1, fallbackLen))
-    end
-
-    if #res > smax then
-        res = string.sub(res, 1, smax)
-    end
-
-    res = string.gsub(res, "(%d+)", "%1.")
-    if #str <= smax then
-        res = string.upper(res)
-    end
-
-    if #res <= 0 then
-        if #str <= smax then
-            res = string.upper(str)
-        else
-            res = string.gsub(str, "[^%l-]", "")
-            res = string.sub(res, 1, smax)
-            res = string.upper(res)
+        local fallback = str:gsub("[^%l-]", "")
+        if #fallback == 0 then
+            fallback = str
         end
+
+        return fallback:sub(1, smax):upper()
     end
 
-    if string.find(res, "-", string.len(res), true) then
-        res = string.gsub(str, "[^%u%d%.]", "")
+    res = res:sub(1, smax)
+    res = res:gsub("(%d+)", "%1.")
+    if res:sub(-1) == "-" then
+        res = str:gsub("[^%u%d%.]", ""):sub(1, smax)
     end
 
-    return res
+    return res:upper()
 end
 
 function ChatUtils:CheckWord(msg, name, word)
@@ -542,6 +528,38 @@ function ChatUtils:Init()
         return ok and res or {text}
     end
 
+    local leader = PVP_RANK_LEADER or RAID_MANAGER_RESTRICT_PINGS_TO_LEAD
+    if leader then
+        leader = string.lower(leader)
+    end
+
+    local function ReplaceLeader(msg, leadername)
+        if leadername then
+            local s = msg:find(leadername)
+            if s and s < 60 then
+                msg = SafeGsub(msg, leader, "", 1)
+            end
+        end
+
+        return msg
+    end
+
+    local head = LEADER
+    if head then
+        head = string.lower(leader)
+    end
+
+    local function ReplaceHeader(msg, headername)
+        if headername then
+            local s = msg:find(headername)
+            if s and s < 60 then
+                msg = SafeGsub(msg, head, "", 1)
+            end
+        end
+
+        return msg
+    end
+
     local function AddMessage(sel, message, author, ...)
         if isPrinting then return hooks[sel](sel, message, author, ...) end
         local msg = "" .. (message or "")
@@ -571,6 +589,18 @@ function ChatUtils:Init()
         end
 
         if channel then
+            if channel == "INSTANCE_CHAT" then
+                msg = ReplaceLeader(msg, INSTANCE_CHAT_LEADER)
+            elseif channel == "PARTY" then
+                msg = ReplaceLeader(msg, CHAT_MSG_PARTY_LEADER)
+            elseif channel == "BATTLEGROUND" then
+                if CHAT_MSG_BATTLEGROUND_LEADER then
+                    msg = ReplaceHeader(msg, CHAT_MSG_BATTLEGROUND_LEADER)
+                else
+                    msg = ReplaceHeader(msg, RAID_LEADER)
+                end
+            end
+
             chanName = chanName or _G["CHAT_MSG_" .. channel]
             local chanFormat = _G["CHAT_" .. channel .. "_GET"] or (channelName and _G["CHAT_" .. channelName .. "_GET"]) or (chanIndex and _G["CHAT_" .. chanIndex .. "_GET"])
             if chanFormat then
