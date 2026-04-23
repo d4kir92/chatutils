@@ -507,6 +507,10 @@ function ChatUtils:Init()
 
     local hooks = {}
     local function SafeGsub(text, pattern, repl, n)
+        if not text then return text end
+        if type(text) ~= "string" then return text end
+        local canTouch = pcall(function() return tostring(text) end)
+        if not canTouch then return text end
         local ok, res = pcall(string.gsub, text, pattern, repl, n)
 
         return ok and res or text
@@ -514,6 +518,9 @@ function ChatUtils:Init()
 
     local function SafeSplit(text, sep)
         if not text then return {} end
+        if type(text) ~= "string" then return {} end
+        local canTouch = pcall(function() return tostring(text) end)
+        if not canTouch then return {} end
         local ok, res = pcall(
             function()
                 local t = {}
@@ -560,8 +567,13 @@ function ChatUtils:Init()
         return msg
     end
 
+    local isPrinting = false
     local function AddMessage(sel, message, author, ...)
         if isPrinting then return hooks[sel](sel, message, author, ...) end
+        if not message then return message end
+        if type(message) ~= "string" then return message end
+        local canTouch = pcall(function() return tostring(message) end)
+        if not canTouch then return message end
         local msg = "" .. (message or "")
         local clean = SafeGsub(msg, "|", "")
         clean = SafeGsub(clean, "h%[", ":")
