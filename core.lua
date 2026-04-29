@@ -380,6 +380,7 @@ function ChatUtils:GuildScan()
     end
 end
 
+local isPrinting = false
 function ChatUtils:Init()
     local chatTypes = {}
     for i, v in pairs(_G) do
@@ -535,39 +536,24 @@ function ChatUtils:Init()
         return ok and res or {text}
     end
 
-    local leader = PVP_RANK_LEADER or RAID_MANAGER_RESTRICT_PINGS_TO_LEAD
-    if leader then
-        leader = string.lower(leader)
-    end
-
     local function ReplaceLeader(msg, leadername)
         if leadername then
             local s = msg:find(leadername)
-            if s and s < 60 then
-                msg = SafeGsub(msg, leader, "", 1)
-            end
+            if s and s < 80 then return leadername end
         end
 
-        return msg
-    end
-
-    local head = LEADER
-    if head then
-        head = string.lower(leader)
+        return nil
     end
 
     local function ReplaceHeader(msg, headername)
         if headername then
             local s = msg:find(headername)
-            if s and s < 60 then
-                msg = SafeGsub(msg, head, "", 1)
-            end
+            if s and s < 80 then return headername end
         end
 
-        return msg
+        return nil
     end
 
-    local isPrinting = false
     local function AddMessage(sel, message, author, ...)
         if isPrinting then return hooks[sel](sel, message, author, ...) end
         if not message then return message end
@@ -601,16 +587,23 @@ function ChatUtils:Init()
         end
 
         if channel then
+            local chanReplaced = nil
             if channel == "INSTANCE_CHAT" then
-                msg = ReplaceLeader(msg, INSTANCE_CHAT_LEADER)
+                chanReplaced = chanReplaced or ReplaceLeader(msg, INSTANCE_CHAT_LEADER)
             elseif channel == "PARTY" then
-                msg = ReplaceLeader(msg, CHAT_MSG_PARTY_LEADER)
+                chanReplaced = chanReplaced or ReplaceLeader(msg, CHAT_MSG_PARTY_LEADER)
             elseif channel == "BATTLEGROUND" then
                 if CHAT_MSG_BATTLEGROUND_LEADER then
-                    msg = ReplaceHeader(msg, CHAT_MSG_BATTLEGROUND_LEADER)
-                else
-                    msg = ReplaceHeader(msg, RAID_LEADER)
+                    chanReplaced = chanReplaced or ReplaceHeader(msg, CHAT_MSG_BATTLEGROUND_LEADER)
                 end
+
+                chanReplaced = chanReplaced or ReplaceHeader(msg, RAID_LEADER)
+            elseif channel == "RAID" then
+                if CHAT_MSG_BATTLEGROUND_LEADER then
+                    chanReplaced = chanReplaced or ReplaceHeader(msg, CHAT_MSG_BATTLEGROUND_LEADER)
+                end
+
+                chanReplaced = chanReplaced or ReplaceHeader(msg, RAID_LEADER)
             end
 
             chanName = chanName or _G["CHAT_MSG_" .. channel]
@@ -624,8 +617,8 @@ function ChatUtils:Init()
                 end
             end
 
-            if CHUT and CHUT["USESMALLCHANNELNAMES"] and chanName then
-                local ok, replaced = pcall(function() return ChatUtils:ReplaceStr(msg, chanName, ChatUtils:ChatOnlyBig(chanName)) end)
+            if CHUT and CHUT["USESMALLCHANNELNAMES"] and (chanReplaced or chanName) then
+                local ok, replaced = pcall(function() return ChatUtils:ReplaceStr(msg, chanReplaced or chanName, ChatUtils:ChatOnlyBig(chanName)) end)
                 if ok and replaced then
                     msg = replaced
                 end
