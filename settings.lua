@@ -6,9 +6,10 @@ chutSetup:SetScript(
     function(self, event, ...)
         if event == "PLAYER_LOGIN" then
             CHUT = CHUT or {}
-            ChatUtils:SetVersion(133457, "0.3.75")
+            ChatUtils:SetVersion(133457, "0.3.76")
             ChatUtils:AddSlash("chut", ChatUtils.ToggleSettings)
-            ChatUtils:AddSlash("ChatUtils", ChatUtils.ToggleSettings)
+            ChatUtils:AddSlash("chatutils", ChatUtils.ToggleSettings)
+            ChatUtils:SetAddonOutput("ChatUtils", 133457)
             local mmbtn = nil
             ChatUtils:CreateMinimapButton(
                 {
@@ -86,6 +87,7 @@ function ChatUtils:InitSettings()
     ChatUtils:AppendCheckbox("SHOWRACEICON", false)
     ChatUtils:AppendCheckbox("SHOWITEMICON", true)
     ChatUtils:AppendCheckbox("SHOWPLAYERLEVEL", true)
+    ChatUtils:AppendCheckbox("SHOWREALMNAME", true)
     --ChatUtils:AppendCheckbox("SHOWPLAYERLEVELMAX", true)
     ChatUtils:AppendCheckbox("USESMALLCHANNELNAMES", true)
 end

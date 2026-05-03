@@ -12,6 +12,7 @@ local moneyTab = {
     ["copper"] = {}
 }
 
+local isPrinting = false
 local function AddMoneyLang(lang, wg, ws, wc)
     if moneyTab["gold"] and not tContains(moneyTab["gold"], wg) then
         tinsert(moneyTab["gold"], wg)
@@ -140,6 +141,15 @@ local function stringToTable(str)
     return t
 end
 
+function ChatUtils:ReplaceRealmName(name)
+    if CHUT["SHOWREALMNAME"] == false then return name end
+    if name == nil then return name end
+    local ok, newName = pcall(function() return name:gsub("%-.+", "") end)
+    if ok then return newName end
+
+    return name
+end
+
 function ChatUtils:ConvertMessage(typ, msg, name, ...)
     msg = ChatUtils:CheckWords(msg, name, "invite", "ginv", "inv")
     msg = ChatUtils:CheckWords(msg, name, "einladen")
@@ -147,6 +157,7 @@ function ChatUtils:ConvertMessage(typ, msg, name, ...)
     msg = ChatUtils:ReplaceMoney(msg, gShort, gLong, gold)
     msg = ChatUtils:ReplaceMoney(msg, sShort, sLong, silver)
     msg = ChatUtils:ReplaceMoney(msg, cShort, cLong, copper)
+    name = ChatUtils:ReplaceRealmName(name)
 
     return false, msg, name, ...
 end
@@ -380,7 +391,6 @@ function ChatUtils:GuildScan()
     end
 end
 
-local isPrinting = false
 function ChatUtils:Init()
     local chatTypes = {}
     for i, v in pairs(_G) do
