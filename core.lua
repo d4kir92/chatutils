@@ -142,9 +142,9 @@ local function stringToTable(str)
 end
 
 function ChatUtils:ReplaceRealmName(name)
-    if CHUT["SHOWREALMNAME"] == false then return name end
+    if CHUT["SHOWREALMNAME"] then return name end
     if name == nil then return name end
-    local ok, newName = pcall(function() return name:gsub("%-.+", "") end)
+    local ok, newName = pcall(function(author) return author:gsub("%-.+", "") end, name)
     if ok then return newName end
 
     return name
