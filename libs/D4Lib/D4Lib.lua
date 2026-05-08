@@ -738,7 +738,7 @@ function D4:GetClassIcon(class)
 end
 
 function D4:GetRaceAtlas(race, gender)
-    return ("raceicon-%s-%s"):format(race:lower(), gender:lower())
+    return ("raceicon128-%s-%s"):format(race:lower(), gender:lower())
 end
 
 local invalidAtlas = {}
@@ -747,6 +747,16 @@ raceAtlasFix["scourge"] = "Undead"
 raceAtlasFix["highmountaintauren"] = "Highmountain"
 raceAtlasFix["lightforgeddraenei"] = "Lightforged"
 raceAtlasFix["zandalaritroll"] = "Zandalari"
+raceAtlasFix["harronir"] = "Haranir"
+raceAtlasFix["earthendwarf"] = "Earthen"
+if false then
+    for i, v in ipairs(C_Texture.GetAtlasElements()) do
+        if v:lower():find("raceicon") and (v:lower():find("dwarf") or v:lower():find("dwarf")) then
+            print("Möglicher Key: " .. v)
+        end
+    end
+end
+
 function D4:GetRaceIcon(race, gender)
     if raceAtlasFix[race:lower()] ~= nil and C_Texture.GetAtlasInfo(D4:GetRaceAtlas(race, genderNames[gender])) == nil then
         race = raceAtlasFix[race:lower()]
