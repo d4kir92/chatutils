@@ -6,7 +6,7 @@ chutSetup:SetScript(
     function(self, event, ...)
         if event == "PLAYER_LOGIN" then
             CHUT = CHUT or {}
-            ChatUtils:SetVersion(133457, "0.3.80")
+            ChatUtils:SetVersion(133457, "0.3.81")
             ChatUtils:AddSlash("chut", ChatUtils.ToggleSettings)
             ChatUtils:AddSlash("chatutils", ChatUtils.ToggleSettings)
             ChatUtils:SetAddonOutput("ChatUtils", 133457)
