@@ -154,9 +154,18 @@ function ChatUtils:ConvertMessage(typ, msg, name, ...)
     msg = ChatUtils:CheckWords(msg, name, "invite", "ginv", "inv")
     msg = ChatUtils:CheckWords(msg, name, "einladen")
     msg = ChatUtils:CheckWords(msg, name, "layer")
-    msg = ChatUtils:ReplaceMoney(msg, gShort, gLong, gold)
-    msg = ChatUtils:ReplaceMoney(msg, sShort, sLong, silver)
-    msg = ChatUtils:ReplaceMoney(msg, cShort, cLong, copper)
+    if CHUT["SHOWGOLDICON"] then
+        msg = ChatUtils:ReplaceMoney(msg, gShort, gLong, gold)
+    end
+
+    if CHUT["SHOWSILVERICON"] then
+        msg = ChatUtils:ReplaceMoney(msg, sShort, sLong, silver)
+    end
+
+    if CHUT["SHOWCOPPERICON"] then
+        msg = ChatUtils:ReplaceMoney(msg, cShort, cLong, copper)
+    end
+
     name = ChatUtils:ReplaceRealmName(name)
 
     return false, msg, name, ...

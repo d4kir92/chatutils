@@ -6,7 +6,7 @@ chutSetup:SetScript(
     function(self, event, ...)
         if event == "PLAYER_LOGIN" then
             CHUT = CHUT or {}
-            ChatUtils:SetVersion(133457, "0.3.81")
+            ChatUtils:SetVersion(133457, "0.3.82")
             ChatUtils:AddSlash("chut", ChatUtils.ToggleSettings)
             ChatUtils:AddSlash("chatutils", ChatUtils.ToggleSettings)
             ChatUtils:SetAddonOutput("ChatUtils", 133457)
@@ -86,6 +86,9 @@ function ChatUtils:InitSettings()
     ChatUtils:AppendCheckbox("SHOWCLASSICON", false)
     ChatUtils:AppendCheckbox("SHOWRACEICON", false)
     ChatUtils:AppendCheckbox("SHOWITEMICON", true)
+    ChatUtils:AppendCheckbox("SHOWGOLDICON", true)
+    ChatUtils:AppendCheckbox("SHOWSILVERICON", false)
+    ChatUtils:AppendCheckbox("SHOWCOPPERICON", false)
     ChatUtils:AppendCheckbox("SHOWPLAYERLEVEL", true)
     ChatUtils:AppendCheckbox("SHOWREALMNAME", true)
     --ChatUtils:AppendCheckbox("SHOWPLAYERLEVELMAX", true)
