@@ -585,8 +585,9 @@ function ChatUtils:Init()
         clean = SafeGsub(clean, "%]h", ":")
         clean = SafeGsub(clean, "^[:%d%d]+[%s][AP]M[%s]*", "")
         local timestamp
+        local ts
         if GetChatTimestampFormat and GetChatTimestampFormat() then
-            local ts = BetterDate(GetChatTimestampFormat(), time())
+            ts = BetterDate(GetChatTimestampFormat(), time())
             ts = string.sub(ts, 1, #ts - 1)
             timestamp = "[" .. ts .. "] "
         end
@@ -651,6 +652,7 @@ function ChatUtils:Init()
         end
 
         if timestamp then
+            msg = SafeGsub(msg, ts, "")
             msg = timestamp .. msg
         end
 
