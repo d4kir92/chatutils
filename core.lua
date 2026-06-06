@@ -92,7 +92,7 @@ function ChatUtils:ReplaceMoneyMid(message, word, rIcon)
     return message:gsub("(%s%d+)%s*" .. word .. "%f[%A]", "%1" .. rIcon)
 end
 
-function ChatUtils:ReplaceMoney(message, sWord, lWord, icon)
+function ChatUtils:ReplaceMoney(message, sWord, lWord, icon, foundGold)
     local _, fs = ChatFrame1:GetFont()
     if fs then
         fs = fs - 2
@@ -121,7 +121,7 @@ function ChatUtils:ReplaceMoney(message, sWord, lWord, icon)
         end
 
         local rIcon = format(icon, fs, fs)
-        if rIcon then
+        if rIcon and foundGold then
             message = ChatUtils:ReplaceMoneyStart(message, sWord, rIcon)
             message = ChatUtils:ReplaceMoneyMid(message, sWord, rIcon)
             message = ChatUtils:ReplaceMoneyStart(message, strupper(sWord), rIcon)
@@ -154,16 +154,21 @@ function ChatUtils:ConvertMessage(typ, msg, name, ...)
     msg = ChatUtils:CheckWords(msg, name, "invite", "ginv", "inv")
     msg = ChatUtils:CheckWords(msg, name, "einladen")
     msg = ChatUtils:CheckWords(msg, name, "layer")
+    local foundGold = false
+    if string.find(msg, gShort, 1, true) then
+        foundGold = true
+    end
+
     if CHUT["SHOWGOLDICON"] then
-        msg = ChatUtils:ReplaceMoney(msg, gShort, gLong, gold)
+        msg = ChatUtils:ReplaceMoney(msg, gShort, gLong, gold, foundGold)
     end
 
     if CHUT["SHOWSILVERICON"] then
-        msg = ChatUtils:ReplaceMoney(msg, sShort, sLong, silver)
+        msg = ChatUtils:ReplaceMoney(msg, sShort, sLong, silver, foundGold)
     end
 
     if CHUT["SHOWCOPPERICON"] then
-        msg = ChatUtils:ReplaceMoney(msg, cShort, cLong, copper)
+        msg = ChatUtils:ReplaceMoney(msg, cShort, cLong, copper, foundGold)
     end
 
     name = ChatUtils:ReplaceRealmName(name)
