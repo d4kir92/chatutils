@@ -462,6 +462,18 @@ function ChatUtils:Init()
                     else
                         return itemString
                     end
+                elseif typ == "enchant" or typ == "spell" then
+                    id = string.match(id, "(%d+)")
+                    local spellIcon = select(3, ChatUtils:GetSpellInfo(id))
+                    if spellIcon and not msg:find("|T" .. spellIcon, 1, true) then
+                        if CHUT["SHOWITEMICON"] then
+                            return "|T" .. spellIcon .. ":0|t" .. itemString
+                        else
+                            return itemString
+                        end
+                    else
+                        return itemString
+                    end
                 else
                     return itemString
                 end
