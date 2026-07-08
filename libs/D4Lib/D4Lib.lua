@@ -346,6 +346,15 @@ function D4:GetItemInfo(itemID)
     return nil
 end
 
+function D4:GetItemInfoInstant(itemID)
+    if itemID == nil then return nil end
+    if C_Item and C_Item.GetItemInfoInstant then return C_Item.GetItemInfoInstant(itemID) end
+    if GetItemInfoInstant then return GetItemInfoInstant(itemID) end
+    D4:MSG("[D4][GetItemInfoInstant] FAILED")
+
+    return nil
+end
+
 function D4:GetItemCount(itemID)
     if itemID == nil then return nil end
     if C_Item and C_Item.GetItemCount then return C_Item.GetItemCount(itemID) end

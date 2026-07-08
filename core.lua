@@ -452,10 +452,10 @@ function ChatUtils:Init()
                 local typ, id = string.match(itemString, "|H(.-):(.-)|h")
                 if typ == "item" then
                     id = string.match(id, "(%d+)")
-                    local itemName, _, _, _, _, _, _, _, _, itemTexture = ChatUtils:GetItemInfo(id)
-                    if itemName and itemTexture and not msg:find("|T" .. itemTexture, 1, true) then
+                    local itemIcon = select(5, ChatUtils:GetItemInfoInstant(id))
+                    if itemIcon and not msg:find("|T" .. itemIcon, 1, true) then
                         if CHUT["SHOWITEMICON"] then
-                            return "|T" .. itemTexture .. ":0|t" .. itemString
+                            return "|T" .. itemIcon .. ":0|t" .. itemString
                         else
                             return itemString
                         end
