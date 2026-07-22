@@ -288,7 +288,7 @@ D4:OnEvent(
     fSecure,
     function()
         xpcall(
-            function(call)
+            function(calls)
                 for i, func in pairs(calls) do
                     func()
                 end
@@ -1480,6 +1480,7 @@ end
 local MBTNS = nil
 function D4:GetMicroMenuButtons()
     if MBTNS == nil then
+        MBTNS = {}
         if MICRO_BUTTONS == nil then
             MBTNS = {"CharacterMicroButton", "SpellbookMicroButton", "TalentMicroButton", "AchievementMicroButton", "QuestLogMicroButton", "GuildMicroButton", "LFDMicroButton", "CollectionsMicroButton", "EJMicroButton", "StoreMicroButton", "HelpMicroButton", "MainMenuMicroButton"}
         else
