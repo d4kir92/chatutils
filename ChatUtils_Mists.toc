@@ -1,9 +1,17 @@
 ## Interface: 50504
-## Version: 0.3.91
+## Version: 0.3.92
 ## Title: ChatUtils |T133457:16:16:0:0|t by |cff55d2ffD4KiR |T132115:16:16:0:0|t
 ## Notes: An add-on that allows you to add features to chat, such as: invitations to a guild/group, symbols for classes/races/items, etc.
 ## Notes-deDE: Ein Add-on, mit dem Sie Funktionen zum Chat hinzufügen können, z. B.: Einladung zu einer Gilde/Gruppe, Symbole für Klassen/Rassen/Gegenstände usw.
+## Notes-esES: Un complemento que permite añadir funciones al chat, como: invitaciones a hermandad/grupo, símbolos para clases/razas/objetos, etc.
+## Notes-esMX: Un complemento que permite añadir funciones al chat, como: invitaciones a hermandad/grupo, símbolos para clases/razas/objetos, etc.
+## Notes-frFR: Un module complémentaire qui permet d'ajouter des fonctionnalités au chat, telles que : invitations à une guilde/groupe, symboles pour les classes/races/objets, etc.
+## Notes-itIT: Un add-on che permette di aggiungere funzioni alla chat, come: inviti a gilda/gruppo, simboli per classi/razze/oggetti, ecc.
+## Notes-koKR: 길드/파티 초대, 직업/종족/아이템 기호 등 채팅에 기능을 추가할 수 있는 애드온입니다.
+## Notes-ptBR: Um addon que permite adicionar recursos ao chat, como: convites para guilda/grupo, símbolos para classes/raças/itens, etc.
 ## Notes-ruRU: Аддон, с помощью которого можно добавить функции в чат, например: приглашение в гильдию/группу, значки для классов/рас/предметов и т.д...
+## Notes-zhCN: 一个可以为聊天添加功能的插件,例如:公会/队伍邀请、职业/种族/物品图标等。
+## Notes-zhTW: 一個可以為聊天新增功能的外掛,例如:公會/隊伍邀請、職業/種族/物品圖示等。
 ## Author: D4KiR |T132115:16:16:0:0|t
 ## Category: Chat
 ## Category-deDE: Chat
