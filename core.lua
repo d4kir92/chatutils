@@ -14,21 +14,10 @@ local moneyTab = {
 
 local isPrinting = false
 local function AddMoneyLang(lang, wg, ws, wc)
-    if moneyTab["gold"] and not tContains(moneyTab["gold"], wg) then
-        tinsert(moneyTab["gold"], wg)
-    end
-
-    if moneyTab["silver"] and not tContains(moneyTab["silver"], ws) then
-        tinsert(moneyTab["silver"], ws)
-    end
-
-    if moneyTab["copper"] and not tContains(moneyTab["copper"], wc) then
-        tinsert(moneyTab["copper"], wc)
-    end
-
-    if false then
-        ChatUtils:MSG(lang)
-    end
+    if moneyTab["gold"] and not tContains(moneyTab["gold"], wg) then tinsert(moneyTab["gold"], wg) end
+    if moneyTab["silver"] and not tContains(moneyTab["silver"], ws) then tinsert(moneyTab["silver"], ws) end
+    if moneyTab["copper"] and not tContains(moneyTab["copper"], wc) then tinsert(moneyTab["copper"], wc) end
+    if false then ChatUtils:MSG(lang) end
 end
 
 AddMoneyLang("enUS", "Gold", "Silver", "Copper")
@@ -128,7 +117,6 @@ function ChatUtils:ReplaceMoney(message, sWord, lWord, icon, foundGold)
             message = ChatUtils:ReplaceMoneyMid(message, strupper(sWord), rIcon)
         end
     end
-
     return message
 end
 
@@ -137,7 +125,6 @@ local function stringToTable(str)
     for value in str:gmatch("%S+") do
         table.insert(t, value)
     end
-
     return t
 end
 
@@ -146,7 +133,6 @@ function ChatUtils:ReplaceRealmName(name)
     if name == nil then return name end
     local ok, newName = pcall(function(author) return author:gsub("%-.+", "") end, name)
     if ok then return newName end
-
     return name
 end
 
@@ -155,24 +141,11 @@ function ChatUtils:ConvertMessage(typ, msg, name, ...)
     msg = ChatUtils:CheckWords(msg, name, "einladen")
     msg = ChatUtils:CheckWords(msg, name, "layer")
     local foundGold = false
-    if string.find(msg, gShort, 1, true) then
-        foundGold = true
-    end
-
-    if CHUT["SHOWGOLDICON"] then
-        msg = ChatUtils:ReplaceMoney(msg, gShort, gLong, gold, foundGold)
-    end
-
-    if CHUT["SHOWSILVERICON"] then
-        msg = ChatUtils:ReplaceMoney(msg, sShort, sLong, silver, foundGold)
-    end
-
-    if CHUT["SHOWCOPPERICON"] then
-        msg = ChatUtils:ReplaceMoney(msg, cShort, cLong, copper, foundGold)
-    end
-
+    if string.find(msg, gShort, 1, true) then foundGold = true end
+    if CHUT["SHOWGOLDICON"] then msg = ChatUtils:ReplaceMoney(msg, gShort, gLong, gold, foundGold) end
+    if CHUT["SHOWSILVERICON"] then msg = ChatUtils:ReplaceMoney(msg, sShort, sLong, silver, foundGold) end
+    if CHUT["SHOWCOPPERICON"] then msg = ChatUtils:ReplaceMoney(msg, cShort, cLong, copper, foundGold) end
     name = ChatUtils:ReplaceRealmName(name)
-
     return false, msg, name, ...
 end
 
@@ -185,25 +158,18 @@ function ChatUtils:ChatOnlyBig(str, imax)
         local text = str:match("%.%s*(.+)$") or ""
         -- Kürze Text auf 3 Zeichen und mache ihn groß
         text = text:gsub("[^%a]", ""):sub(1, 3):upper()
-
         return num .. " " .. text
     end
 
     if #res == 0 then
         local fallback = str:gsub("[^%l-]", "")
-        if #fallback == 0 then
-            fallback = str
-        end
-
+        if #fallback == 0 then fallback = str end
         return fallback:sub(1, smax):upper()
     end
 
     res = res:sub(1, smax)
     res = res:gsub("(%d+)", "%1.")
-    if res:sub(-1) == "-" then
-        res = str:gsub("[^%u%d%.]", ""):sub(1, smax)
-    end
-
+    if res:sub(-1) == "-" then res = str:gsub("[^%u%d%.]", ""):sub(1, smax) end
     return res:upper()
 end
 
@@ -212,10 +178,7 @@ function ChatUtils:CheckWord(msg, name, word)
     local words = stringToTable(msg)
     local res = ""
     for i, v in pairs(words) do
-        if i > 0 then
-            res = res .. " "
-        end
-
+        if i > 0 then res = res .. " " end
         local isWholeWord = v:len() == word:len()
         local w = string.gsub(v, word, "|cff" .. "FFFF00" .. "|H" .. word .. ":" .. name .. "|h" .. "[" .. word .. "]" .. "|h|r")
         if isWholeWord then
@@ -224,7 +187,6 @@ function ChatUtils:CheckWord(msg, name, word)
             res = res .. v
         end
     end
-
     return res
 end
 
@@ -237,7 +199,6 @@ function ChatUtils:CheckWords(msg, name, word, word2, word3)
     elseif word3 and string.find(msg, word3, 0, true) then
         return ChatUtils:CheckWord(msg, name, word3)
     end
-
     return msg
 end
 
@@ -249,7 +210,6 @@ function ChatUtils:SetHyperlink(link, text, button)
         local tab = {}
         tab.url = url
         StaticPopup_Show("CLICK_LINK_URL", "", "", tab)
-
         return true
     elseif typ == "invite" or typ == "inv" or typ == "ginv" or typ == "einladen" or typ == "layer" then
         local name = string.sub(link, poi + 1)
@@ -259,7 +219,6 @@ function ChatUtils:SetHyperlink(link, text, button)
             elseif GuildInvite then
                 GuildInvite(name)
             end
-
             return true
         elseif button == "MiddleButton" then
             CommunitiesFrame:Show()
@@ -269,10 +228,8 @@ function ChatUtils:SetHyperlink(link, text, button)
         elseif InviteUnit then
             InviteUnit(name)
         end
-
         return true
     end
-
     return false
 end
 
@@ -301,7 +258,6 @@ function GetColoredName(event, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12
             if str then return format("|c%s%s|r", str, a2) end
         end
     end
-
     return a2
 end
 
@@ -323,31 +279,25 @@ function ChatUtils:FixName(name, realm)
 
     realm = string.gsub(realm, "-", "")
     realm = string.gsub(realm, " ", "")
-
     return name, realm
 end
 
 local levelTab = {}
 function ChatUtils:GetLevel(name, realm)
     name, realm = ChatUtils:FixName(name, realm)
-
     return levelTab[name .. "-" .. realm]
 end
 
 function ChatUtils:SetLevel(name, realm, level, from)
     name, realm = ChatUtils:FixName(name, realm)
-    if name and realm then
-        levelTab[name .. "-" .. realm] = level
-    end
+    if name and realm then levelTab[name .. "-" .. realm] = level end
 end
 
 function ChatUtils:WhoScan()
     if C_FriendList == nil then return end
     for i = 1, C_FriendList.GetNumWhoResults() do
         local info = C_FriendList.GetWhoInfo(i)
-        if info and info.fullName and info.level then
-            ChatUtils:SetLevel(info.fullName, nil, info.level, "WhoScan")
-        end
+        if info and info.fullName and info.level then ChatUtils:SetLevel(info.fullName, nil, info.level, "WhoScan") end
     end
 end
 
@@ -355,9 +305,7 @@ function ChatUtils:FriendScan()
     if C_FriendList == nil then return end
     for i = 1, C_FriendList.GetNumFriends() do
         local info = C_FriendList.GetFriendInfoByIndex(i)
-        if info and info.name and info.level then
-            ChatUtils:SetLevel(info.name, nil, info.level, "FriendScan")
-        end
+        if info and info.name and info.level then ChatUtils:SetLevel(info.name, nil, info.level, "FriendScan") end
     end
 end
 
@@ -375,9 +323,7 @@ function ChatUtils:PartyScan()
         end
     end
 
-    if not success then
-        C_Timer.After(0.1, ChatUtils.PartyScan)
-    end
+    if not success then C_Timer.After(0.1, ChatUtils.PartyScan) end
 end
 
 function ChatUtils:RaidScan()
@@ -385,9 +331,7 @@ function ChatUtils:RaidScan()
     for i = 1, max() do
         local _, _, _, Level = GetRaidRosterInfo(i)
         local Name, Server = UnitName("raid" .. i)
-        if Name then
-            ChatUtils:SetLevel(Name, Server, Level, "RaidScan")
-        end
+        if Name then ChatUtils:SetLevel(Name, Server, Level, "RaidScan") end
     end
 end
 
@@ -398,9 +342,7 @@ function ChatUtils:GuildScan()
         for i = 1, max do
             local Name, _, _, Level = GetGuildRosterInfo(i)
             local name, realm = Name:match("([^%-]+)%-?(.*)")
-            if name then
-                ChatUtils:SetLevel(name, realm, Level, "GuildScan")
-            end
+            if name then ChatUtils:SetLevel(name, realm, Level, "GuildScan") end
         end
     end
 end
@@ -408,78 +350,60 @@ end
 function ChatUtils:Init()
     local chatTypes = {}
     for i, v in pairs(_G) do
-        if string.find(i, "CHAT_MSG_") and not tContains(chatTypes, i) then
-            tinsert(chatTypes, i)
-        end
+        if string.find(i, "CHAT_MSG_") and not tContains(chatTypes, i) then tinsert(chatTypes, i) end
     end
 
     if ChatTypeInfo and getmetatable(ChatTypeInfo) then
         for typ in next, getmetatable(ChatTypeInfo).__index do
-            if not tContains(chatTypes, "CHAT_MSG_" .. typ) then
-                tinsert(chatTypes, "CHAT_MSG_" .. typ)
-            end
+            if not tContains(chatTypes, "CHAT_MSG_" .. typ) then tinsert(chatTypes, "CHAT_MSG_" .. typ) end
         end
     end
 
     for i, typ in pairs(chatTypes) do
-        if not string.find(i, "BOSS") then
-            ChatFrame_AddMessageEventFilter(typ, ChatUtils.ConvertMessage)
-        end
+        if not string.find(i, "BOSS") then ChatFrame_AddMessageEventFilter(typ, ChatUtils.ConvertMessage) end
     end
 
     if ChatUtils:GetWoWBuild() == "RETAIL" then
-        hooksecurefunc(
-            "SetItemRef",
-            function(link, text, button)
-                ChatUtils:SetHyperlink(link, text, button)
-            end
-        )
+        hooksecurefunc("SetItemRef", function(link, text, button) ChatUtils:SetHyperlink(link, text, button) end)
     else
         ItemRefTooltip.OldSetHyperlink = ItemRefTooltip.SetHyperlink
         function ItemRefTooltip:SetHyperlink(link, text, button)
             local worked = ChatUtils:SetHyperlink(link, text, button)
-            if not worked then
-                ItemRefTooltip:OldSetHyperlink(link, text, button)
-            end
+            if not worked then ItemRefTooltip:OldSetHyperlink(link, text, button) end
         end
     end
 
     local function LOCALChatAddItemIcons(msg)
-        msg = string.gsub(
-            msg,
-            "(|H.-|h.-|h)",
-            function(itemString)
-                local typ, id = string.match(itemString, "|H(.-):(.-)|h")
-                if typ == "item" then
-                    id = string.match(id, "(%d+)")
-                    local itemIcon = select(5, ChatUtils:GetItemInfoInstant(id))
-                    if itemIcon and not msg:find("|T" .. itemIcon, 1, true) then
-                        if CHUT["SHOWITEMICON"] then
-                            return "|T" .. itemIcon .. ":0|t" .. itemString
-                        else
-                            return itemString
-                        end
-                    else
-                        return itemString
-                    end
-                elseif typ == "enchant" or typ == "spell" then
-                    id = string.match(id, "(%d+)")
-                    local spellIcon = select(3, ChatUtils:GetSpellInfo(id))
-                    if spellIcon and not msg:find("|T" .. spellIcon, 1, true) then
-                        if CHUT["SHOWITEMICON"] then
-                            return "|T" .. spellIcon .. ":0|t" .. itemString
-                        else
-                            return itemString
-                        end
+        msg = string.gsub(msg, "(|H.-|h.-|h)", function(itemString)
+            local typ, id = string.match(itemString, "|H(.-):(.-)|h")
+            if typ == "item" then
+                id = string.match(id, "(%d+)")
+                local itemIcon = select(5, ChatUtils:GetItemInfoInstant(id))
+                if itemIcon and not msg:find("|T" .. itemIcon, 1, true) then
+                    if CHUT["SHOWITEMICON"] then
+                        return "|T" .. itemIcon .. ":0|t" .. itemString
                     else
                         return itemString
                     end
                 else
                     return itemString
                 end
+            elseif typ == "enchant" or typ == "spell" then
+                id = string.match(id, "(%d+)")
+                local spellIcon = select(3, ChatUtils:GetSpellInfo(id))
+                if spellIcon and not msg:find("|T" .. spellIcon, 1, true) then
+                    if CHUT["SHOWITEMICON"] then
+                        return "|T" .. spellIcon .. ":0|t" .. itemString
+                    else
+                        return itemString
+                    end
+                else
+                    return itemString
+                end
+            else
+                return itemString
             end
-        )
-
+        end)
         return msg
     end
 
@@ -491,9 +415,7 @@ function ChatUtils:Init()
         local links = {}
         for i = 1, string.len(msg) do
             local _, _, itemString = strfind(msg, "|H(.+)|h", i)
-            if not tContains(links, itemString) then
-                table.insert(links, itemString)
-            end
+            if not tContains(links, itemString) then table.insert(links, itemString) end
         end
 
         for i, itemString in ipairs(links) do
@@ -503,20 +425,13 @@ function ChatUtils:Init()
                 if guid then
                     local _, engClass, _, engRace, gender, name, realm = GetPlayerInfoByGUID(guid)
                     if engClass and engRace and gender then
-                        if CHUT["SHOWCLASSICON"] and ChatUtils:GetClassIcon(engClass) then
-                            msg = ChatUtils:GetClassIcon(engClass, 0) .. msg
-                        end
-
-                        if CHUT["SHOWRACEICON"] and ChatUtils:GetRaceIcon(engRace, gender) then
-                            msg = ChatUtils:GetRaceIcon(engRace, gender) .. msg
-                        end
+                        if CHUT["SHOWCLASSICON"] and ChatUtils:GetClassIcon(engClass) then msg = ChatUtils:GetClassIcon(engClass, 0) .. msg end
+                        if CHUT["SHOWRACEICON"] and ChatUtils:GetRaceIcon(engRace, gender) then msg = ChatUtils:GetRaceIcon(engRace, gender) .. msg end
                     end
 
                     if CHUT["SHOWROLEICON"] and UnitGroupRolesAssigned and guid then
                         local role = ChatUtils:GetRoleByGuid(guid)
-                        if role and role ~= "" and role ~= "NONE" then
-                            msg = "|A:" .. ChatUtils:GetRoleIcon(role) .. ":16:16:0:0|a" .. msg
-                        end
+                        if role and role ~= "" and role ~= "NONE" then msg = "|A:" .. ChatUtils:GetRoleIcon(role) .. ":16:16:0:0|a" .. msg end
                     end
 
                     local level = ChatUtils:GetLevel(name, realm)
@@ -529,16 +444,13 @@ function ChatUtils:Init()
                             local _, e1 = string.find(msg, name)
                             if e1 then
                                 local s2 = string.find(msg, name, e1)
-                                if s2 then
-                                    msg = msg:sub(1, s2 - 1) .. level .. ":" .. msg:sub(s2)
-                                end
+                                if s2 then msg = msg:sub(1, s2 - 1) .. level .. ":" .. msg:sub(s2) end
                             end
                         end
                     end
                 end
             end
         end
-
         return msg, author
     end
 
@@ -549,7 +461,6 @@ function ChatUtils:Init()
         local canTouch = pcall(function() return tostring(text) end)
         if not canTouch then return text end
         local ok, res = pcall(string.gsub, text, pattern, repl, n)
-
         return ok and res or text
     end
 
@@ -558,17 +469,13 @@ function ChatUtils:Init()
         if type(text) ~= "string" then return {} end
         local canTouch = pcall(function() return tostring(text) end)
         if not canTouch then return {} end
-        local ok, res = pcall(
-            function()
-                local t = {}
-                for s in string.gmatch(text, "([^" .. sep .. "]+)") do
-                    t[#t + 1] = s
-                end
-
-                return t
+        local ok, res = pcall(function()
+            local t = {}
+            for s in string.gmatch(text, "([^" .. sep .. "]+)") do
+                t[#t + 1] = s
             end
-        )
-
+            return t
+        end)
         return ok and res or {text}
     end
 
@@ -577,7 +484,6 @@ function ChatUtils:Init()
             local s = msg:find(leadername)
             if s and s < 80 then return leadername end
         end
-
         return nil
     end
 
@@ -586,7 +492,6 @@ function ChatUtils:Init()
             local s = msg:find(headername)
             if s and s < 80 then return headername end
         end
-
         return nil
     end
 
@@ -630,16 +535,10 @@ function ChatUtils:Init()
             elseif channel == "PARTY" then
                 chanReplaced = chanReplaced or ReplaceLeader(msg, CHAT_MSG_PARTY_LEADER)
             elseif channel == "BATTLEGROUND" then
-                if CHAT_MSG_BATTLEGROUND_LEADER then
-                    chanReplaced = chanReplaced or ReplaceHeader(msg, CHAT_MSG_BATTLEGROUND_LEADER)
-                end
-
+                if CHAT_MSG_BATTLEGROUND_LEADER then chanReplaced = chanReplaced or ReplaceHeader(msg, CHAT_MSG_BATTLEGROUND_LEADER) end
                 chanReplaced = chanReplaced or ReplaceHeader(msg, RAID_LEADER)
             elseif channel == "RAID" then
-                if CHAT_MSG_BATTLEGROUND_LEADER then
-                    chanReplaced = chanReplaced or ReplaceHeader(msg, CHAT_MSG_BATTLEGROUND_LEADER)
-                end
-
+                if CHAT_MSG_BATTLEGROUND_LEADER then chanReplaced = chanReplaced or ReplaceHeader(msg, CHAT_MSG_BATTLEGROUND_LEADER) end
                 chanReplaced = chanReplaced or ReplaceHeader(msg, RAID_LEADER)
             end
 
@@ -656,9 +555,7 @@ function ChatUtils:Init()
 
             if CHUT and CHUT["USESMALLCHANNELNAMES"] and (chanReplaced or chanName) then
                 local ok, replaced = pcall(function() return ChatUtils:ReplaceStr(msg, chanReplaced or chanName, ChatUtils:ChatOnlyBig(chanName)) end)
-                if ok and replaced then
-                    msg = replaced
-                end
+                if ok and replaced then msg = replaced end
             end
 
             local ok, newMsg, newAuthor = pcall(LOCALChatAddPlayerIcons, msg, author, 1)
@@ -672,7 +569,6 @@ function ChatUtils:Init()
             msg = SafeGsub(msg, ts, "")
             msg = timestamp .. msg
         end
-
         return hooks[sel](sel, msg, author, ...)
     end
 
@@ -688,10 +584,7 @@ function ChatUtils:Init()
 
     local function LOCALIconsFilter(sel, typ, msg, author, ...)
         local guid = select(10, ...)
-        if author and guid then
-            PLYCache[author] = guid
-        end
-
+        if author and guid then PLYCache[author] = guid end
         return false, LOCALChatAddItemIcons(msg), author, ...
     end
 
@@ -711,31 +604,23 @@ function ChatUtils:Init()
     lf:RegisterEvent("RAID_ROSTER_UPDATE")
     lf:RegisterEvent("WHO_LIST_UPDATE")
     lf:RegisterEvent("PLAYER_LEVEL_UP")
-    lf:SetScript(
-        "OnEvent",
-        function(sel, event, ...)
-            if event == "GUILD_ROSTER_UPDATE" or event == "CHAT_MSG_GUILD" or event == "CHAT_MSG_OFFICER" then
-                C_Timer.After(delay, ChatUtils.GuildScan)
-            elseif event == "PLAYER_LEVEL_UP" then
-                C_Timer.After(
-                    delay,
-                    function()
-                        ChatUtils:SetLevel(UnitName("player"), GetRealmName(), UnitLevel("player"))
-                    end
-                )
-            elseif event == "WHO_LIST_UPDATE" then
-                C_Timer.After(delay, ChatUtils.WhoScan)
-            elseif event == "FRIENDLIST_UPDATE" then
-                C_Timer.After(delay, ChatUtils.FriendScan)
-            elseif event == "RAID_ROSTER_UPDATE" or event == "CHAT_MSG_RAID" then
-                C_Timer.After(delay, ChatUtils.RaidScan)
-            elseif event == "GROUP_ROSTER_UPDATE" then
-                C_Timer.After(delay, ChatUtils.PartyScan)
-            else
-                ChatUtils:MSG("Missing Event: " .. event)
-            end
+    lf:SetScript("OnEvent", function(sel, event, ...)
+        if event == "GUILD_ROSTER_UPDATE" or event == "CHAT_MSG_GUILD" or event == "CHAT_MSG_OFFICER" then
+            C_Timer.After(delay, ChatUtils.GuildScan)
+        elseif event == "PLAYER_LEVEL_UP" then
+            C_Timer.After(delay, function() ChatUtils:SetLevel(UnitName("player"), GetRealmName(), UnitLevel("player")) end)
+        elseif event == "WHO_LIST_UPDATE" then
+            C_Timer.After(delay, ChatUtils.WhoScan)
+        elseif event == "FRIENDLIST_UPDATE" then
+            C_Timer.After(delay, ChatUtils.FriendScan)
+        elseif event == "RAID_ROSTER_UPDATE" or event == "CHAT_MSG_RAID" then
+            C_Timer.After(delay, ChatUtils.RaidScan)
+        elseif event == "GROUP_ROSTER_UPDATE" then
+            C_Timer.After(delay, ChatUtils.PartyScan)
+        else
+            ChatUtils:MSG("Missing Event: " .. event)
         end
-    )
+    end)
 
     ChatUtils:WhoScan()
     ChatUtils:FriendScan()
