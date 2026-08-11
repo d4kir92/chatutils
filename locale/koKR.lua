@@ -1,0 +1,15 @@
+-- koKR Korean
+local _, ChatUtils = ...
+ChatUtils:AddTrans("koKR", "LID_GENERAL", "일반")
+ChatUtils:AddTrans("koKR", "LID_CHAT", "채팅")
+ChatUtils:AddTrans("koKR", "LID_SHOWMINIMAPBUTTON", "미니맵 단추 표시")
+ChatUtils:AddTrans("koKR", "LID_SHOWROLEICON", "역할 아이콘 표시")
+ChatUtils:AddTrans("koKR", "LID_SHOWCLASSICON", "직업 아이콘 표시")
+ChatUtils:AddTrans("koKR", "LID_SHOWRACEICON", "종족 아이콘 표시")
+ChatUtils:AddTrans("koKR", "LID_SHOWITEMICON", "아이템 아이콘 표시")
+ChatUtils:AddTrans("koKR", "LID_SHOWGOLDICON", "골드 아이콘 표시")
+ChatUtils:AddTrans("koKR", "LID_SHOWSILVERICON", "실버 아이콘 표시")
+ChatUtils:AddTrans("koKR", "LID_SHOWCOPPERICON", "구리 아이콘 표시")
+ChatUtils:AddTrans("koKR", "LID_SHOWPLAYERLEVEL", "플레이어 레벨 표시")
+ChatUtils:AddTrans("koKR", "LID_USESMALLCHANNELNAMES", "짧은 채널 이름 사용")
+ChatUtils:AddTrans("koKR", "LID_SHOWREALMNAME", "서버 이름 표시")

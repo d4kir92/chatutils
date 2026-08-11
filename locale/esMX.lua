@@ -1,0 +1,15 @@
+-- esMX
+local _, ChatUtils = ...
+ChatUtils:AddTrans("esMX", "LID_GENERAL", "General")
+ChatUtils:AddTrans("esMX", "LID_CHAT", "Chat")
+ChatUtils:AddTrans("esMX", "LID_SHOWMINIMAPBUTTON", "Mostrar botón del minimapa")
+ChatUtils:AddTrans("esMX", "LID_SHOWROLEICON", "Mostrar icono de rol")
+ChatUtils:AddTrans("esMX", "LID_SHOWCLASSICON", "Icono de clase")
+ChatUtils:AddTrans("esMX", "LID_SHOWRACEICON", "Icono de raza")
+ChatUtils:AddTrans("esMX", "LID_SHOWITEMICON", "Icono de objeto")
+ChatUtils:AddTrans("esMX", "LID_SHOWGOLDICON", "Mostrar icono de oro")
+ChatUtils:AddTrans("esMX", "LID_SHOWSILVERICON", "Mostrar icono de plata")
+ChatUtils:AddTrans("esMX", "LID_SHOWCOPPERICON", "Mostrar icono de cobre")
+ChatUtils:AddTrans("esMX", "LID_SHOWPLAYERLEVEL", "Mostrar nivel de jugador")
+ChatUtils:AddTrans("esMX", "LID_USESMALLCHANNELNAMES", "Usar nombres de canal pequeños")
+ChatUtils:AddTrans("esMX", "LID_SHOWREALMNAME", "Mostrar nombre del reino")

@@ -1,0 +1,15 @@
+-- zhTW
+local _, ChatUtils = ...
+ChatUtils:AddTrans("zhTW", "LID_GENERAL", "常規")
+ChatUtils:AddTrans("zhTW", "LID_CHAT", "聊天")
+ChatUtils:AddTrans("zhTW", "LID_SHOWMINIMAPBUTTON", "顯示小地圖按鈕")
+ChatUtils:AddTrans("zhTW", "LID_SHOWROLEICON", "顯示角色圖示")
+ChatUtils:AddTrans("zhTW", "LID_SHOWCLASSICON", "顯示職業圖示")
+ChatUtils:AddTrans("zhTW", "LID_SHOWRACEICON", "顯示種族圖示")
+ChatUtils:AddTrans("zhTW", "LID_SHOWITEMICON", "顯示物品圖示")
+ChatUtils:AddTrans("zhTW", "LID_SHOWGOLDICON", "顯示金幣圖示")
+ChatUtils:AddTrans("zhTW", "LID_SHOWSILVERICON", "顯示銀幣圖示")
+ChatUtils:AddTrans("zhTW", "LID_SHOWCOPPERICON", "顯示銅幣圖示")
+ChatUtils:AddTrans("zhTW", "LID_SHOWPLAYERLEVEL", "顯示玩家等級")
+ChatUtils:AddTrans("zhTW", "LID_USESMALLCHANNELNAMES", "使用簡短頻道名稱")
+ChatUtils:AddTrans("zhTW", "LID_SHOWREALMNAME", "顯示伺服器名稱")
