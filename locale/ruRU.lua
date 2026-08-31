@@ -2,6 +2,9 @@
 local _, ChatUtils = ...
 ChatUtils:AddTrans("ruRU", "LID_GENERAL", "Общее")
 ChatUtils:AddTrans("ruRU", "LID_CHAT", "Чат")
+ChatUtils:AddTrans("ruRU", "LID_CHARACTER", "Персонаж")
+ChatUtils:AddTrans("ruRU", "LID_CHATCHANNEL", "Канал чата")
+ChatUtils:AddTrans("ruRU", "LID_GOLD", "Золото")
 ChatUtils:AddTrans("ruRU", "LID_SHOWMINIMAPBUTTON", "Показывать кнопку на миникарте")
 ChatUtils:AddTrans("ruRU", "LID_SHOWROLEICON", "Показывать значок роли")
 ChatUtils:AddTrans("ruRU", "LID_SHOWCLASSICON", "Показывать значок класса")

@@ -2,6 +2,9 @@
 local _, ChatUtils = ...
 ChatUtils:AddTrans("zhCN", "LID_GENERAL", "常规")
 ChatUtils:AddTrans("zhCN", "LID_CHAT", "聊天")
+ChatUtils:AddTrans("zhCN", "LID_CHARACTER", "角色")
+ChatUtils:AddTrans("zhCN", "LID_CHATCHANNEL", "聊天频道")
+ChatUtils:AddTrans("zhCN", "LID_GOLD", "金币")
 ChatUtils:AddTrans("zhCN", "LID_SHOWMINIMAPBUTTON", "显示小地图按钮")
 ChatUtils:AddTrans("zhCN", "LID_SHOWROLEICON", "显示角色图标")
 ChatUtils:AddTrans("zhCN", "LID_SHOWCLASSICON", "显示等级图标")

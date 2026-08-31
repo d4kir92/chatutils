@@ -2,6 +2,9 @@
 local _, ChatUtils = ...
 ChatUtils:AddTrans("zhTW", "LID_GENERAL", "常規")
 ChatUtils:AddTrans("zhTW", "LID_CHAT", "聊天")
+ChatUtils:AddTrans("zhTW", "LID_CHARACTER", "角色")
+ChatUtils:AddTrans("zhTW", "LID_CHATCHANNEL", "聊天頻道")
+ChatUtils:AddTrans("zhTW", "LID_GOLD", "金幣")
 ChatUtils:AddTrans("zhTW", "LID_SHOWMINIMAPBUTTON", "顯示小地圖按鈕")
 ChatUtils:AddTrans("zhTW", "LID_SHOWROLEICON", "顯示角色圖示")
 ChatUtils:AddTrans("zhTW", "LID_SHOWCLASSICON", "顯示職業圖示")

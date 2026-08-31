@@ -2,6 +2,9 @@
 local _, ChatUtils = ...
 ChatUtils:AddTrans("esMX", "LID_GENERAL", "General")
 ChatUtils:AddTrans("esMX", "LID_CHAT", "Chat")
+ChatUtils:AddTrans("esMX", "LID_CHARACTER", "Personaje")
+ChatUtils:AddTrans("esMX", "LID_CHATCHANNEL", "Canal de chat")
+ChatUtils:AddTrans("esMX", "LID_GOLD", "Oro")
 ChatUtils:AddTrans("esMX", "LID_SHOWMINIMAPBUTTON", "Mostrar botón del minimapa")
 ChatUtils:AddTrans("esMX", "LID_SHOWROLEICON", "Mostrar icono de rol")
 ChatUtils:AddTrans("esMX", "LID_SHOWCLASSICON", "Icono de clase")

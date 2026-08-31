@@ -2,6 +2,9 @@
 local _, ChatUtils = ...
 ChatUtils:AddTrans("deDE", "LID_GENERAL", "Allgemein")
 ChatUtils:AddTrans("deDE", "LID_CHAT", "Chat")
+ChatUtils:AddTrans("deDE", "LID_CHARACTER", "Charakter")
+ChatUtils:AddTrans("deDE", "LID_CHATCHANNEL", "Chat-Kanal")
+ChatUtils:AddTrans("deDE", "LID_GOLD", "Gold")
 ChatUtils:AddTrans("deDE", "LID_SHOWMINIMAPBUTTON", "Minimapknopf anzeigen")
 ChatUtils:AddTrans("deDE", "LID_SHOWROLEICON", "Rollensymbol anzeigen")
 ChatUtils:AddTrans("deDE", "LID_SHOWCLASSICON", "Klassensymbol anzeigen")

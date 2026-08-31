@@ -2,6 +2,9 @@
 local _, ChatUtils = ...
 ChatUtils:AddTrans("koKR", "LID_GENERAL", "일반")
 ChatUtils:AddTrans("koKR", "LID_CHAT", "채팅")
+ChatUtils:AddTrans("koKR", "LID_CHARACTER", "캐릭터")
+ChatUtils:AddTrans("koKR", "LID_CHATCHANNEL", "대화 채널")
+ChatUtils:AddTrans("koKR", "LID_GOLD", "골드")
 ChatUtils:AddTrans("koKR", "LID_SHOWMINIMAPBUTTON", "미니맵 단추 표시")
 ChatUtils:AddTrans("koKR", "LID_SHOWROLEICON", "역할 아이콘 표시")
 ChatUtils:AddTrans("koKR", "LID_SHOWCLASSICON", "직업 아이콘 표시")
