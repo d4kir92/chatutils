@@ -6,6 +6,12 @@ local GetNumRaidMembers = getglobal("GetNumRaidMembers")
 local gold = "|TInterface\\MoneyFrame\\UI-GoldIcon:%d:%d:0:0|t"
 local silver = "|TInterface\\MoneyFrame\\UI-SilverIcon:%d:%d:0:0|t"
 local copper = "|TInterface\\MoneyFrame\\UI-CopperIcon:%d:%d:0:0|t"
+local function CanTouchValue(v)
+    if type(issecretvalue) == "function" and issecretvalue(v) then return false end
+
+    return true
+end
+
 local moneyTab = {
     ["gold"] = {},
     ["silver"] = {},
@@ -131,6 +137,7 @@ end
 function ChatUtils:ReplaceRealmName(name)
     if CHUT["SHOWREALMNAME"] then return name end
     if name == nil then return name end
+    if not CanTouchValue(name) then return name end
     local ok, newName = pcall(function(author) return author:gsub("%-.+", "") end, name)
     if ok then return newName end
     return name
@@ -458,8 +465,7 @@ function ChatUtils:Init()
     local function SafeGsub(text, pattern, repl, n)
         if not text then return text end
         if type(text) ~= "string" then return text end
-        local canTouch = pcall(function() return tostring(text) end)
-        if not canTouch then return text end
+        if not CanTouchValue(text) then return text end
         local ok, res = pcall(string.gsub, text, pattern, repl, n)
         return ok and res or text
     end
@@ -467,8 +473,7 @@ function ChatUtils:Init()
     local function SafeSplit(text, sep)
         if not text then return {} end
         if type(text) ~= "string" then return {} end
-        local canTouch = pcall(function() return tostring(text) end)
-        if not canTouch then return {} end
+        if not CanTouchValue(text) then return {} end
         local ok, res = pcall(function()
             local t = {}
             for s in string.gmatch(text, "([^" .. sep .. "]+)") do
@@ -498,6 +503,7 @@ function ChatUtils:Init()
     local function ShortenLinkRealms(msg)
         if CHUT and CHUT["SHOWREALMNAME"] then return msg end
         if type(msg) ~= "string" then return msg end
+        if not CanTouchValue(msg) then return msg end
         if not string.find(msg, "|Hplayer:", 1, true) then return msg end
         local ok, res = pcall(string.gsub, msg, "(|Hplayer:.-|h)(.-)(|h)", function(pre, disp, post) return pre .. string.gsub(disp, "%-[^%]|]+", "") .. post end)
         return ok and res or msg
@@ -507,8 +513,7 @@ function ChatUtils:Init()
         if isPrinting then return hooks[sel](sel, message, author, ...) end
         if not message then return message end
         if type(message) ~= "string" then return message end
-        local canTouch = pcall(function() return tostring(message) end)
-        if not canTouch then return message end
+        if not CanTouchValue(message) then return message end
         local msg = "" .. (message or "")
         local clean = SafeGsub(msg, "|", "")
         clean = SafeGsub(clean, "h%[", ":")
