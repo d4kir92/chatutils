@@ -495,6 +495,14 @@ function ChatUtils:Init()
         return nil
     end
 
+    local function ShortenLinkRealms(msg)
+        if CHUT and CHUT["SHOWREALMNAME"] then return msg end
+        if type(msg) ~= "string" then return msg end
+        if not string.find(msg, "|Hplayer:", 1, true) then return msg end
+        local ok, res = pcall(string.gsub, msg, "(|Hplayer:.-|h)(.-)(|h)", function(pre, disp, post) return pre .. string.gsub(disp, "%-[^%]|]+", "") .. post end)
+        return ok and res or msg
+    end
+
     local function AddMessage(sel, message, author, ...)
         if isPrinting then return hooks[sel](sel, message, author, ...) end
         if not message then return message end
@@ -569,6 +577,8 @@ function ChatUtils:Init()
             msg = SafeGsub(msg, ts, "")
             msg = timestamp .. msg
         end
+
+        msg = ShortenLinkRealms(msg)
         return hooks[sel](sel, msg, author, ...)
     end
 
