@@ -12,6 +12,15 @@ local function CanTouchValue(v)
     return true
 end
 
+local function CanTouchAll(...)
+    for i = 1, select("#", ...) do
+        local v = select(i, ...)
+        if not CanTouchValue(v) then return false end
+    end
+
+    return true
+end
+
 local moneyTab = {
     ["gold"] = {},
     ["silver"] = {},
@@ -144,6 +153,7 @@ function ChatUtils:ReplaceRealmName(name)
 end
 
 function ChatUtils:ConvertMessage(typ, msg, name, ...)
+    if not CanTouchAll(msg, name) then return false, msg, name, ... end
     msg = ChatUtils:CheckWords(msg, name, "invite", "ginv", "inv")
     msg = ChatUtils:CheckWords(msg, name, "einladen")
     msg = ChatUtils:CheckWords(msg, name, "layer")
@@ -157,6 +167,7 @@ end
 
 function ChatUtils:ChatOnlyBig(str, imax)
     if not str then return nil end
+    if not CanTouchValue(str) then return str end
     local smax = imax or 4
     local res = str:gsub("[^%u%d-]", "")
     if res:match("^%d+$") then
@@ -181,6 +192,7 @@ end
 
 function ChatUtils:CheckWord(msg, name, word)
     if name == nil then return msg end
+    if not CanTouchAll(msg, name) then return msg end
     local words = stringToTable(msg)
     local res = ""
     for i, v in pairs(words) do
@@ -198,6 +210,7 @@ end
 
 function ChatUtils:CheckWords(msg, name, word, word2, word3)
     if name == nil then return msg end
+    if not CanTouchAll(msg, name) then return msg end
     if word and string.find(msg, word, 0, true) then
         return ChatUtils:CheckWord(msg, name, word)
     elseif word2 and string.find(msg, word2, 0, true) then
@@ -209,6 +222,8 @@ function ChatUtils:CheckWords(msg, name, word, word2, word3)
 end
 
 function ChatUtils:SetHyperlink(link, text, button)
+    if link == nil then return false end
+    if not CanTouchValue(link) then return false end
     local poi = string.find(link, ":", 0, true)
     local typ = string.sub(link, 1, poi - 1)
     if typ == "url" then
@@ -241,10 +256,12 @@ end
 
 function GetColoredName(event, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12)
     if not a2 then return a2 end
+    if not CanTouchValue(a2) then return a2 end
     local chatType = strsub(event, 10)
     if strsub(chatType, 1, 7) == "WHISPER" then
         chatType = "WHISPER"
     elseif strsub(chatType, 1, 7) == "CHANNEL" then
+        if a8 == nil or not CanTouchValue(a8) then return a2 end
         chatType = "CHANNEL" .. a8
     end
 
@@ -258,11 +275,11 @@ function GetColoredName(event, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12
 
     a2 = ChatUtils:ReplaceRealmName(a2)
     local info = ChatTypeInfo[chatType]
-    if info and info.colorNameByClass and a12 and a12 ~= "" and a12 ~= 0 then
+    if info and info.colorNameByClass and a12 and CanTouchValue(a12) and a12 ~= "" and a12 ~= 0 then
         local _, class = GetPlayerInfoByGUID(a12)
-        if class then
+        if class and CanTouchValue(class) then
             local _, _, _, str = ChatUtils:GetClassColor(class)
-            if str then return format("|c%s%s|r", str, a2) end
+            if str and CanTouchAll(str, a2) then return format("|c%s%s|r", str, a2) end
         end
     end
     return a2
@@ -270,10 +287,12 @@ end
 
 local PLYCache = {}
 function ChatUtils:GetGUID(name)
+    if not CanTouchValue(name) then return nil end
     return PLYCache[name]
 end
 
 function ChatUtils:FixName(name, realm)
+    if not CanTouchAll(name, realm) then return name, realm end
     if name and realm == nil or realm == "" then
         local s1 = string.find(name, "-", 0, true)
         if name and s1 then
@@ -291,12 +310,16 @@ end
 
 local levelTab = {}
 function ChatUtils:GetLevel(name, realm)
+    if not CanTouchAll(name, realm) then return nil end
     name, realm = ChatUtils:FixName(name, realm)
+    if not CanTouchAll(name, realm) then return nil end
     return levelTab[name .. "-" .. realm]
 end
 
 function ChatUtils:SetLevel(name, realm, level, from)
+    if not CanTouchAll(name, realm) then return end
     name, realm = ChatUtils:FixName(name, realm)
+    if not CanTouchAll(name, realm) then return end
     if name and realm then levelTab[name .. "-" .. realm] = level end
 end
 
@@ -348,8 +371,10 @@ function ChatUtils:GuildScan()
         local max = GetNumGuildMembers()
         for i = 1, max do
             local Name, _, _, Level = GetGuildRosterInfo(i)
-            local name, realm = Name:match("([^%-]+)%-?(.*)")
-            if name then ChatUtils:SetLevel(name, realm, Level, "GuildScan") end
+            if Name and CanTouchValue(Name) then
+                local name, realm = Name:match("([^%-]+)%-?(.*)")
+                if name then ChatUtils:SetLevel(name, realm, Level, "GuildScan") end
+            end
         end
     end
 end
@@ -381,6 +406,8 @@ function ChatUtils:Init()
     end
 
     local function LOCALChatAddItemIcons(msg)
+        if msg == nil then return msg end
+        if not CanTouchValue(msg) then return msg end
         msg = string.gsub(msg, "(|H.-|h.-|h)", function(itemString)
             local typ, id = string.match(itemString, "|H(.-):(.-)|h")
             if typ == "item" then
@@ -419,6 +446,7 @@ function ChatUtils:Init()
     allowedTyp["playerCommunity"] = true
     allowedTyp["playerGM"] = true
     local function LOCALChatAddPlayerIcons(msg, author, c)
+        if not CanTouchValue(msg) then return msg, author end
         local links = {}
         for i = 1, string.len(msg) do
             local _, _, itemString = strfind(msg, "|H(.+)|h", i)
@@ -431,18 +459,18 @@ function ChatUtils:Init()
                 local guid = ChatUtils:GetGUID(id)
                 if guid then
                     local _, engClass, _, engRace, gender, name, realm = GetPlayerInfoByGUID(guid)
-                    if engClass and engRace and gender then
+                    if engClass and engRace and gender and CanTouchAll(engClass, engRace, gender) then
                         if CHUT["SHOWCLASSICON"] and ChatUtils:GetClassIcon(engClass) then msg = ChatUtils:GetClassIcon(engClass, 0) .. msg end
                         if CHUT["SHOWRACEICON"] and ChatUtils:GetRaceIcon(engRace, gender) then msg = ChatUtils:GetRaceIcon(engRace, gender) .. msg end
                     end
 
                     if CHUT["SHOWROLEICON"] and UnitGroupRolesAssigned and guid then
                         local role = ChatUtils:GetRoleByGuid(guid)
-                        if role and role ~= "" and role ~= "NONE" then msg = "|A:" .. ChatUtils:GetRoleIcon(role) .. ":16:16:0:0|a" .. msg end
+                        if role and CanTouchValue(role) and role ~= "" and role ~= "NONE" then msg = "|A:" .. ChatUtils:GetRoleIcon(role) .. ":16:16:0:0|a" .. msg end
                     end
 
                     local level = ChatUtils:GetLevel(name, realm)
-                    if CHUT["SHOWPLAYERLEVEL"] and level and level > 0 then
+                    if CHUT["SHOWPLAYERLEVEL"] and level and CanTouchAll(level, name) and level > 0 then
                         if string.find(msg, name .. "|r%]") then
                             msg = string.gsub(msg, name .. "|r%]", level .. ":" .. name .. "|r%]", 1)
                         elseif string.find(msg, name .. "%]") then
@@ -599,7 +627,7 @@ function ChatUtils:Init()
 
     local function LOCALIconsFilter(sel, typ, msg, author, ...)
         local guid = select(10, ...)
-        if author and guid then PLYCache[author] = guid end
+        if author and guid and CanTouchAll(author, guid) then PLYCache[author] = guid end
         return false, LOCALChatAddItemIcons(msg), author, ...
     end
 
