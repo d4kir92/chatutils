@@ -145,7 +145,6 @@ function ChatUtils:ConvertMessage(typ, msg, name, ...)
     if CHUT["SHOWGOLDICON"] then msg = ChatUtils:ReplaceMoney(msg, gShort, gLong, gold, foundGold) end
     if CHUT["SHOWSILVERICON"] then msg = ChatUtils:ReplaceMoney(msg, sShort, sLong, silver, foundGold) end
     if CHUT["SHOWCOPPERICON"] then msg = ChatUtils:ReplaceMoney(msg, cShort, cLong, copper, foundGold) end
-    name = ChatUtils:ReplaceRealmName(name)
     return false, msg, name, ...
 end
 
@@ -250,6 +249,7 @@ function GetColoredName(event, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12
         end
     end
 
+    a2 = ChatUtils:ReplaceRealmName(a2)
     local info = ChatTypeInfo[chatType]
     if info and info.colorNameByClass and a12 and a12 ~= "" and a12 ~= 0 then
         local _, class = GetPlayerInfoByGUID(a12)
