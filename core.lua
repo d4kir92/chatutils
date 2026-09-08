@@ -511,9 +511,9 @@ function ChatUtils:Init()
 
     local function AddMessage(sel, message, author, ...)
         if isPrinting then return hooks[sel](sel, message, author, ...) end
-        if not message then return message end
-        if type(message) ~= "string" then return message end
-        if not CanTouchValue(message) then return message end
+        if not message then return hooks[sel](sel, message, author, ...) end
+        if type(message) ~= "string" then return hooks[sel](sel, message, author, ...) end
+        if not CanTouchValue(message) then return hooks[sel](sel, message, author, ...) end
         local msg = "" .. (message or "")
         local clean = SafeGsub(msg, "|", "")
         clean = SafeGsub(clean, "h%[", ":")
