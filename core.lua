@@ -31,7 +31,6 @@ local moneyTab = {
     ["copper"] = {}
 }
 
-local isPrinting = false
 local function AddMoneyLang(lang, wg, ws, wc)
     if moneyTab["gold"] and not tContains(moneyTab["gold"], wg) then tinsert(moneyTab["gold"], wg) end
     if moneyTab["silver"] and not tContains(moneyTab["silver"], ws) then tinsert(moneyTab["silver"], ws) end
@@ -511,7 +510,6 @@ function ChatUtils:Init()
     end
 
     local function AddMessage(sel, message, author, ...)
-        if isPrinting then return hooks[sel](sel, message, author, ...) end
         if not message then return hooks[sel](sel, message, author, ...) end
         if type(message) ~= "string" then return hooks[sel](sel, message, author, ...) end
         if not CanTouchValue(message) then return hooks[sel](sel, message, author, ...) end
@@ -588,15 +586,25 @@ function ChatUtils:Init()
         return hooks[sel](sel, msg, author, ...)
     end
 
-    for i = 1, NUM_CHAT_WINDOWS do
-        if i ~= 2 then
-            local frame = _G["ChatFrame" .. i]
-            if frame and not hooks[frame] then
-                hooks[frame] = frame.AddMessage
-                frame.AddMessage = AddMessage
+    local function UpdateHooks()
+        local _, it = GetInstanceInfo()
+        local off = it == "arena" or it == "pvp"
+        for i = 1, NUM_CHAT_WINDOWS do
+            if i ~= 2 then
+                local frame = _G["ChatFrame" .. i]
+                if frame then
+                    if not hooks[frame] then hooks[frame] = frame.AddMessage end
+                    if off then
+                        if frame.AddMessage == AddMessage then frame.AddMessage = hooks[frame] end
+                    elseif frame.AddMessage ~= AddMessage then
+                        frame.AddMessage = AddMessage
+                    end
+                end
             end
         end
     end
+
+    UpdateHooks()
 
     local function LOCALIconsFilter(sel, typ, msg, author, ...)
         local guid = select(10, ...)
@@ -621,8 +629,11 @@ function ChatUtils:Init()
     lf:RegisterEvent("RAID_ROSTER_UPDATE")
     lf:RegisterEvent("WHO_LIST_UPDATE")
     lf:RegisterEvent("PLAYER_LEVEL_UP")
+    lf:RegisterEvent("PLAYER_ENTERING_WORLD")
     lf:SetScript("OnEvent", function(sel, event, ...)
-        if event == "GUILD_ROSTER_UPDATE" or event == "CHAT_MSG_GUILD" or event == "CHAT_MSG_OFFICER" then
+        if event == "PLAYER_ENTERING_WORLD" then
+            UpdateHooks()
+        elseif event == "GUILD_ROSTER_UPDATE" or event == "CHAT_MSG_GUILD" or event == "CHAT_MSG_OFFICER" then
             C_Timer.After(delay, ChatUtils.GuildScan)
         elseif event == "PLAYER_LEVEL_UP" then
             C_Timer.After(delay, function() ChatUtils:SetLevel(UnitName("player"), GetRealmName(), UnitLevel("player")) end)
