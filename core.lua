@@ -254,37 +254,6 @@ function ChatUtils:SetHyperlink(link, text, button)
     return false
 end
 
-function GetColoredName(event, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12)
-    if not a2 then return a2 end
-    if not CanTouchValue(a2) then return a2 end
-    local chatType = strsub(event, 10)
-    if strsub(chatType, 1, 7) == "WHISPER" then
-        chatType = "WHISPER"
-    elseif strsub(chatType, 1, 7) == "CHANNEL" then
-        if a8 == nil or not CanTouchValue(a8) then return a2 end
-        chatType = "CHANNEL" .. a8
-    end
-
-    if Ambiguate then
-        if chatType == "GUILD" then
-            a2 = Ambiguate(a2, "guild")
-        else
-            a2 = Ambiguate(a2, "none")
-        end
-    end
-
-    a2 = ChatUtils:ReplaceRealmName(a2)
-    local info = ChatTypeInfo[chatType]
-    if info and info.colorNameByClass and a12 and CanTouchValue(a12) and a12 ~= "" and a12 ~= 0 then
-        local _, class = GetPlayerInfoByGUID(a12)
-        if class and CanTouchValue(class) then
-            local _, _, _, str = ChatUtils:GetClassColor(class)
-            if str and CanTouchAll(str, a2) then return format("|c%s%s|r", str, a2) end
-        end
-    end
-    return a2
-end
-
 local PLYCache = {}
 function ChatUtils:GetGUID(name)
     if not CanTouchValue(name) then return nil end
