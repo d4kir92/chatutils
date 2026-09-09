@@ -7,7 +7,11 @@ local gold = "|TInterface\\MoneyFrame\\UI-GoldIcon:%d:%d:0:0|t"
 local silver = "|TInterface\\MoneyFrame\\UI-SilverIcon:%d:%d:0:0|t"
 local copper = "|TInterface\\MoneyFrame\\UI-CopperIcon:%d:%d:0:0|t"
 local function CanTouchValue(v)
-    if type(issecretvalue) == "function" and issecretvalue(v) then return false end
+    if type(issecretvalue) == "function" and issecretvalue(v) then
+        if type(canaccessvalue) == "function" then return canaccessvalue(v) == true end
+
+        return false
+    end
 
     return true
 end
@@ -153,7 +157,7 @@ function ChatUtils:ReplaceRealmName(name)
 end
 
 function ChatUtils:ConvertMessage(typ, msg, name, ...)
-    if not CanTouchAll(msg, name) then return false, msg, name, ... end
+    if not CanTouchValue(msg) then return false, msg, name, ... end
     msg = ChatUtils:CheckWords(msg, name, "invite", "ginv", "inv")
     msg = ChatUtils:CheckWords(msg, name, "einladen")
     msg = ChatUtils:CheckWords(msg, name, "layer")
@@ -609,6 +613,7 @@ function ChatUtils:Init()
     local lf = CreateFrame("Frame", "IALevelFrame")
     lf:RegisterEvent("GROUP_ROSTER_UPDATE")
     lf:RegisterEvent("CHAT_MSG_RAID")
+    lf:RegisterEvent("CHAT_MSG_INSTANCE_CHAT")
     lf:RegisterEvent("CHAT_MSG_GUILD")
     lf:RegisterEvent("CHAT_MSG_OFFICER")
     lf:RegisterEvent("FRIENDLIST_UPDATE")
@@ -625,10 +630,11 @@ function ChatUtils:Init()
             C_Timer.After(delay, ChatUtils.WhoScan)
         elseif event == "FRIENDLIST_UPDATE" then
             C_Timer.After(delay, ChatUtils.FriendScan)
-        elseif event == "RAID_ROSTER_UPDATE" or event == "CHAT_MSG_RAID" then
+        elseif event == "RAID_ROSTER_UPDATE" or event == "CHAT_MSG_RAID" or event == "CHAT_MSG_INSTANCE_CHAT" then
             C_Timer.After(delay, ChatUtils.RaidScan)
         elseif event == "GROUP_ROSTER_UPDATE" then
             C_Timer.After(delay, ChatUtils.PartyScan)
+            C_Timer.After(delay, ChatUtils.RaidScan)
         else
             ChatUtils:MSG("Missing Event: " .. event)
         end
