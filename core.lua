@@ -588,7 +588,7 @@ function ChatUtils:Init()
 
     local function UpdateHooks()
         local _, it = GetInstanceInfo()
-        local off = it == "arena" or it == "pvp"
+        local off = ChatUtils:IsCamelot() or it == "arena" or it == "pvp"
         for i = 1, NUM_CHAT_WINDOWS do
             if i ~= 2 then
                 local frame = _G["ChatFrame" .. i]
