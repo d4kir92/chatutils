@@ -1,6 +1,6 @@
 local _, ChatUtils = ...
 local ICON = 133457
-local VERSION = "0.4.6"
+local VERSION = "0.4.7"
 local DEFAULT_WIDTH = 460
 local DEFAULT_HEIGHT = 520
 local cu_settings = nil
