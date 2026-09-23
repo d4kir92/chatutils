@@ -9,10 +9,8 @@ local copper = "|TInterface\\MoneyFrame\\UI-CopperIcon:%d:%d:0:0|t"
 local function CanTouchValue(v)
     if ChatUtils:IsSecret(v) then
         if type(canaccessvalue) == "function" then return canaccessvalue(v) == true end
-
         return false
     end
-
     return true
 end
 
@@ -21,7 +19,6 @@ local function CanTouchAll(...)
         local v = select(i, ...)
         if not CanTouchValue(v) then return false end
     end
-
     return true
 end
 
@@ -588,7 +585,7 @@ function ChatUtils:Init()
 
     local function UpdateHooks()
         local _, it = GetInstanceInfo()
-        local off = ChatUtils:IsCamelot() or it == "arena" or it == "pvp"
+        local off = ChatUtils:IsForever() or it == "arena" or it == "pvp"
         for i = 1, NUM_CHAT_WINDOWS do
             if i ~= 2 then
                 local frame = _G["ChatFrame" .. i]
@@ -605,7 +602,6 @@ function ChatUtils:Init()
     end
 
     UpdateHooks()
-
     local function LOCALIconsFilter(sel, typ, msg, author, ...)
         local guid = select(10, ...)
         if author and guid and CanTouchAll(author, guid) then PLYCache[author] = guid end
