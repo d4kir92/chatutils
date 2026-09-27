@@ -7,19 +7,11 @@ local gold = "|TInterface\\MoneyFrame\\UI-GoldIcon:%d:%d:0:0|t"
 local silver = "|TInterface\\MoneyFrame\\UI-SilverIcon:%d:%d:0:0|t"
 local copper = "|TInterface\\MoneyFrame\\UI-CopperIcon:%d:%d:0:0|t"
 local function CanTouchValue(v)
-    if ChatUtils:IsSecret(v) then
-        if type(canaccessvalue) == "function" then return canaccessvalue(v) == true end
-        return false
-    end
-    return true
+    return ChatUtils:CanAccessValue(v)
 end
 
 local function CanTouchAll(...)
-    for i = 1, select("#", ...) do
-        local v = select(i, ...)
-        if not CanTouchValue(v) then return false end
-    end
-    return true
+    return ChatUtils:CanAccessValues(...)
 end
 
 local moneyTab = {
