@@ -1,6 +1,6 @@
 local _, ChatUtils = ...
 local ICON = 133457
-local VERSION = "0.4.11"
+local VERSION = "0.4.12"
 local DEFAULT_WIDTH = 460
 local DEFAULT_HEIGHT = 520
 local cu_settings = nil
@@ -10,9 +10,7 @@ end
 
 local function ApplyDefaults()
     CHUT = CHUT or {}
-    if CHUT["BLOCKWORDS"] == nil and IATAB and IATAB["VALUES"] then
-        CHUT["BLOCKWORDS"] = IATAB["VALUES"]["BLOCKWORDS"]
-    end
+    if CHUT["BLOCKWORDS"] == nil and IATAB and IATAB["VALUES"] then CHUT["BLOCKWORDS"] = IATAB["VALUES"]["BLOCKWORDS"] end
     ChatUtils:SV(CHUT, "BLOCKWORDS", ChatUtils:GV(CHUT, "BLOCKWORDS", ""))
     ChatUtils:SV(CHUT, "SHOWMINIMAPBUTTON", ChatUtils:GV(CHUT, "SHOWMINIMAPBUTTON", ShowMinimapButtonDefault()))
     if UnitGroupRolesAssigned then ChatUtils:SV(CHUT, "SHOWROLEICON", ChatUtils:GV(CHUT, "SHOWROLEICON", true)) end
@@ -123,10 +121,9 @@ function ChatUtils:InitSettings()
         GameTooltip:AddLine(ChatUtils:Trans("LID_BLOCKWORDS_HELP"), 1, 1, 1, true)
         GameTooltip:Show()
     end)
+
     blockwords.help:SetScript("OnLeave", function() GameTooltip:Hide() end)
-    blockwords.help:SetScript("OnHide", function(button)
-        if GameTooltip:IsOwned(button) then GameTooltip:Hide() end
-    end)
+    blockwords.help:SetScript("OnHide", function(button) if GameTooltip:IsOwned(button) then GameTooltip:Hide() end end)
     blockwords.add = CreateFrame("Button", nil, blockwords, buttonTemplate)
     blockwords.add:SetSize(120, 22)
     blockwords.add:SetPoint("TOPRIGHT", 0, -20)
@@ -173,14 +170,19 @@ function ChatUtils:InitSettings()
                     self.words[index] = box:GetText()
                     self:Save()
                 end)
+
                 row.box:SetScript("OnEscapePressed", function(box) box:ClearFocus() end)
                 row.box:SetScript("OnEnterPressed", function(box) box:ClearFocus() end)
                 row.delete:SetScript("OnClick", function()
-                    for _, entry in ipairs(self.rows) do entry.box:ClearFocus() end
+                    for _, entry in ipairs(self.rows) do
+                        entry.box:ClearFocus()
+                    end
+
                     table.remove(self.words, index)
                     self:Save()
                     self:Refresh()
                 end)
+
                 self.rows[index] = row
             end
 
@@ -211,9 +213,9 @@ function ChatUtils:InitSettings()
         blockwords:Refresh()
         blockwords.rows[#blockwords.words].box:SetFocus()
     end)
+
     blockwords:Refresh()
     ChatUtils.UI:Add(cu_settings, blockwords, blockwords:GetHeight(), ChatUtils:Trans("LID_BLOCKWORDS"), true, "BLOCKWORDS")
-
     cu_settings:AddCategory({
         ["label"] = "LID_CHAT",
         ["key"] = "CHAT"
