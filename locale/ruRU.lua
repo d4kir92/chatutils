@@ -17,3 +17,6 @@ ChatUtils:AddTrans("ruRU", "LID_SHOWPLAYERLEVEL", "Показывать уров
 ChatUtils:AddTrans("ruRU", "LID_USESMALLCHANNELNAMES", "Использовать короткие названия каналов")
 ChatUtils:AddTrans("ruRU", "LID_SHOWREALMNAME", "Показывать имя сервера")
 ChatUtils:AddTrans("ruRU", "LID_BLOCKWORDS", "Заблокированные слова")
+ChatUtils:AddTrans("ruRU", "LID_BLOCKWORDS_ADD", "Добавить")
+ChatUtils:AddTrans("ruRU", "LID_BLOCKWORDS_DELETE", "Удалить")
+ChatUtils:AddTrans("ruRU", "LID_BLOCKWORDS_HINT", "Одно слово в строке")

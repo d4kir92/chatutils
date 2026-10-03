@@ -17,3 +17,6 @@ ChatUtils:AddTrans("itIT", "LID_SHOWPLAYERLEVEL", "Mostra il livello del giocato
 ChatUtils:AddTrans("itIT", "LID_USESMALLCHANNELNAMES", "Usa nomi di canali piccoli")
 ChatUtils:AddTrans("itIT", "LID_SHOWREALMNAME", "Mostra nome del reame")
 ChatUtils:AddTrans("itIT", "LID_BLOCKWORDS", "Parole Bloccate")
+ChatUtils:AddTrans("itIT", "LID_BLOCKWORDS_ADD", "Aggiungi")
+ChatUtils:AddTrans("itIT", "LID_BLOCKWORDS_DELETE", "Elimina")
+ChatUtils:AddTrans("itIT", "LID_BLOCKWORDS_HINT", "Una parola per riga")

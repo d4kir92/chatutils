@@ -93,31 +93,109 @@ function ChatUtils:InitSettings()
         ["key"] = "CHAT"
     })
 
-    cu_settings:AddEditbox({
-        ["label"] = "LID_BLOCKWORDS",
-        ["search"] = "BLOCKWORDS",
-        ["value"] = ChatUtils:GV(CHUT, "BLOCKWORDS", ""),
-        ["func"] = function(value, box)
-            ChatUtils:SV(CHUT, "BLOCKWORDS", value)
-            box.blockwordsChange = (box.blockwordsChange or 0) + 1
-            local change = box.blockwordsChange
-            ChatUtils:After(1, function()
-                if box.blockwordsChange ~= change then return end
-                if value == "" or value == " " then
-                    ChatUtils:MSG("|cFFFF0000BLOCKWORDS are disabled|r")
-                else
-                    ChatUtils:MSG("|cFF00FF00BLOCKWORDS changed to:|r")
-                    for word in string.gmatch(value, "[^,]+") do
-                        if strlen(word) < 3 then
-                            ChatUtils:MSG(" • |cFFFF0000" .. word .. " [TOO SHORT!]|r")
-                        else
-                            ChatUtils:MSG(" • |cFF00FF00" .. word .. "|r")
-                        end
-                    end
-                end
-            end, "BlockwordsChanged")
+    local blockwords = CreateFrame("Frame", nil, cu_settings.content)
+    blockwords:SetSize(300, 58)
+    blockwords.words = {}
+    blockwords.rows = {}
+    local savedWords = ChatUtils:GV(CHUT, "BLOCKWORDS", "")
+    if type(savedWords) == "table" then
+        for _, word in ipairs(savedWords) do
+            if type(word) == "string" then table.insert(blockwords.words, word) end
         end
-    })
+    elseif type(savedWords) == "string" then
+        for word in string.gmatch(savedWords, "[^,]+") do
+            table.insert(blockwords.words, word)
+        end
+    end
+
+    blockwords.Label = blockwords:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    blockwords.Label:SetPoint("TOPLEFT", 0, 0)
+    blockwords.add = CreateFrame("Button", nil, blockwords, "UIPanelButtonTemplate")
+    blockwords.add:SetSize(120, 22)
+    blockwords.add:SetPoint("TOPRIGHT", 0, -20)
+    blockwords.add:SetText(ChatUtils:Trans("LID_BLOCKWORDS_ADD"))
+    blockwords.hint = blockwords:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    blockwords.hint:SetPoint("TOPLEFT", 0, -25)
+    blockwords.hint:SetPoint("RIGHT", blockwords.add, "LEFT", -8, 0)
+    blockwords.hint:SetJustifyH("LEFT")
+    blockwords.hint:SetText(ChatUtils:Trans("LID_BLOCKWORDS_HINT"))
+    function blockwords:Save()
+        local words = {}
+        for _, word in ipairs(self.words) do
+            table.insert(words, word)
+        end
+
+        ChatUtils:SV(CHUT, "BLOCKWORDS", words)
+    end
+
+    function blockwords:Refresh()
+        self.Label:SetText(ChatUtils:Trans("LID_BLOCKWORDS") .. " (" .. #self.words .. "/100)")
+        self.add:SetEnabled(#self.words < 100)
+        for index, word in ipairs(self.words) do
+            local row = self.rows[index]
+            if not row then
+                row = CreateFrame("Frame", nil, self)
+                row:SetHeight(28)
+                row:SetPoint("LEFT", self, "LEFT", 0, 0)
+                row:SetPoint("RIGHT", self, "RIGHT", 0, 0)
+                row.number = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+                row.number:SetPoint("LEFT", 0, 0)
+                row.number:SetWidth(28)
+                row.number:SetText(index .. ".")
+                row.delete = CreateFrame("Button", nil, row, "UIPanelButtonTemplate")
+                row.delete:SetSize(90, 22)
+                row.delete:SetPoint("RIGHT", 0, 0)
+                row.delete:SetText(ChatUtils:Trans("LID_BLOCKWORDS_DELETE"))
+                row.box = CreateFrame("EditBox", nil, row, "InputBoxTemplate")
+                row.box:SetHeight(22)
+                row.box:SetPoint("LEFT", 34, 0)
+                row.box:SetPoint("RIGHT", row.delete, "LEFT", -12, 0)
+                row.box:SetAutoFocus(false)
+                row.box:SetScript("OnTextChanged", function(box)
+                    if self.refreshing then return end
+                    self.words[index] = box:GetText()
+                    self:Save()
+                end)
+                row.box:SetScript("OnEscapePressed", function(box) box:ClearFocus() end)
+                row.box:SetScript("OnEnterPressed", function(box) box:ClearFocus() end)
+                row.delete:SetScript("OnClick", function()
+                    for _, entry in ipairs(self.rows) do entry.box:ClearFocus() end
+                    table.remove(self.words, index)
+                    self:Save()
+                    self:Refresh()
+                end)
+                self.rows[index] = row
+            end
+
+            row:SetPoint("TOP", self, "TOP", 0, -50 - (index - 1) * 28)
+            self.refreshing = true
+            row.box:SetText(word)
+            self.refreshing = false
+            row:Show()
+        end
+
+        for index = #self.words + 1, #self.rows do
+            self.rows[index].box:ClearFocus()
+            self.rows[index]:Hide()
+        end
+
+        local height = 50 + #self.words * 28
+        self:SetHeight(height)
+        if self.uiElement then
+            self.uiElement.height = height
+            cu_settings:Layout()
+        end
+    end
+
+    blockwords.add:SetScript("OnClick", function()
+        if #blockwords.words >= 100 then return end
+        table.insert(blockwords.words, "")
+        blockwords:Save()
+        blockwords:Refresh()
+        blockwords.rows[#blockwords.words].box:SetFocus()
+    end)
+    blockwords:Refresh()
+    ChatUtils.UI:Add(cu_settings, blockwords, blockwords:GetHeight(), ChatUtils:Trans("LID_BLOCKWORDS"), true, "BLOCKWORDS")
 
     cu_settings:AddCheckbox({
         ["label"] = "LID_SHOWITEMICON",

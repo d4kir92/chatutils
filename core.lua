@@ -343,10 +343,15 @@ end
 function ChatUtils.RemoveBadWords(self, event, msg)
     if not CanTouchValue(msg) or type(msg) ~= "string" then return end
     local words = CHUT and CHUT["BLOCKWORDS"]
-    if type(words) ~= "string" or words == "" or words == " " then return end
     msg = strlower(msg)
-    for word in string.gmatch(words, "[^,]+") do
-        if msg:find(strlower(word), 1, true) then return true end
+    if type(words) == "table" then
+        for _, word in ipairs(words) do
+            if type(word) == "string" and word ~= "" and word ~= " " and msg:find(strlower(word), 1, true) then return true end
+        end
+    elseif type(words) == "string" and words ~= "" and words ~= " " then
+        for word in string.gmatch(words, "[^,]+") do
+            if msg:find(strlower(word), 1, true) then return true end
+        end
     end
 end
 

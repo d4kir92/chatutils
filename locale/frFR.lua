@@ -17,3 +17,6 @@ ChatUtils:AddTrans("frFR", "LID_SHOWPLAYERLEVEL", "Afficher le niveau du joueur"
 ChatUtils:AddTrans("frFR", "LID_USESMALLCHANNELNAMES", "Utiliser de petits noms de canaux")
 ChatUtils:AddTrans("frFR", "LID_SHOWREALMNAME", "Afficher le nom du royaume")
 ChatUtils:AddTrans("frFR", "LID_BLOCKWORDS", "Mots Bloqués")
+ChatUtils:AddTrans("frFR", "LID_BLOCKWORDS_ADD", "Ajouter")
+ChatUtils:AddTrans("frFR", "LID_BLOCKWORDS_DELETE", "Supprimer")
+ChatUtils:AddTrans("frFR", "LID_BLOCKWORDS_HINT", "Un mot par ligne")
