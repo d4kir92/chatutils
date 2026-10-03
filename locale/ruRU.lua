@@ -16,3 +16,4 @@ ChatUtils:AddTrans("ruRU", "LID_SHOWCOPPERICON", "Показывать знач�
 ChatUtils:AddTrans("ruRU", "LID_SHOWPLAYERLEVEL", "Показывать уровень игрока")
 ChatUtils:AddTrans("ruRU", "LID_USESMALLCHANNELNAMES", "Использовать короткие названия каналов")
 ChatUtils:AddTrans("ruRU", "LID_SHOWREALMNAME", "Показывать имя сервера")
+ChatUtils:AddTrans("ruRU", "LID_BLOCKWORDS", "Заблокированные слова")

@@ -340,7 +340,21 @@ function ChatUtils:GuildScan()
     end
 end
 
+function ChatUtils.RemoveBadWords(self, event, msg)
+    if not CanTouchValue(msg) or type(msg) ~= "string" then return end
+    local words = CHUT and CHUT["BLOCKWORDS"]
+    if type(words) ~= "string" or words == "" or words == " " then return end
+    msg = strlower(msg)
+    for word in string.gmatch(words, "[^,]+") do
+        if msg:find(strlower(word), 1, true) then return true end
+    end
+end
+
 function ChatUtils:Init()
+    for _, event in ipairs({"CHAT_MSG_CHANNEL", "CHAT_MSG_SAY", "CHAT_MSG_YELL", "CHAT_MSG_WHISPER"}) do
+        ChatFrame_AddMessageEventFilter(event, ChatUtils.RemoveBadWords)
+    end
+
     local chatTypes = {}
     for i, v in pairs(_G) do
         if string.find(i, "CHAT_MSG_") and not tContains(chatTypes, i) then tinsert(chatTypes, i) end

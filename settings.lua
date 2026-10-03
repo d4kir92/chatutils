@@ -10,6 +10,10 @@ end
 
 local function ApplyDefaults()
     CHUT = CHUT or {}
+    if CHUT["BLOCKWORDS"] == nil and IATAB and IATAB["VALUES"] then
+        CHUT["BLOCKWORDS"] = IATAB["VALUES"]["BLOCKWORDS"]
+    end
+    ChatUtils:SV(CHUT, "BLOCKWORDS", ChatUtils:GV(CHUT, "BLOCKWORDS", ""))
     ChatUtils:SV(CHUT, "SHOWMINIMAPBUTTON", ChatUtils:GV(CHUT, "SHOWMINIMAPBUTTON", ShowMinimapButtonDefault()))
     if UnitGroupRolesAssigned then ChatUtils:SV(CHUT, "SHOWROLEICON", ChatUtils:GV(CHUT, "SHOWROLEICON", true)) end
     ChatUtils:SV(CHUT, "SHOWCLASSICON", ChatUtils:GV(CHUT, "SHOWCLASSICON", false))
@@ -87,6 +91,32 @@ function ChatUtils:InitSettings()
     cu_settings:AddCategory({
         ["label"] = "LID_CHAT",
         ["key"] = "CHAT"
+    })
+
+    cu_settings:AddEditbox({
+        ["label"] = "LID_BLOCKWORDS",
+        ["search"] = "BLOCKWORDS",
+        ["value"] = ChatUtils:GV(CHUT, "BLOCKWORDS", ""),
+        ["func"] = function(value, box)
+            ChatUtils:SV(CHUT, "BLOCKWORDS", value)
+            box.blockwordsChange = (box.blockwordsChange or 0) + 1
+            local change = box.blockwordsChange
+            ChatUtils:After(1, function()
+                if box.blockwordsChange ~= change then return end
+                if value == "" or value == " " then
+                    ChatUtils:MSG("|cFFFF0000BLOCKWORDS are disabled|r")
+                else
+                    ChatUtils:MSG("|cFF00FF00BLOCKWORDS changed to:|r")
+                    for word in string.gmatch(value, "[^,]+") do
+                        if strlen(word) < 3 then
+                            ChatUtils:MSG(" • |cFFFF0000" .. word .. " [TOO SHORT!]|r")
+                        else
+                            ChatUtils:MSG(" • |cFF00FF00" .. word .. "|r")
+                        end
+                    end
+                end
+            end, "BlockwordsChanged")
+        end
     })
 
     cu_settings:AddCheckbox({
