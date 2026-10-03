@@ -20,3 +20,5 @@ ChatUtils:AddTrans("ruRU", "LID_BLOCKWORDS", "Заблокированные с�
 ChatUtils:AddTrans("ruRU", "LID_BLOCKWORDS_ADD", "Добавить")
 ChatUtils:AddTrans("ruRU", "LID_BLOCKWORDS_DELETE", "Удалить")
 ChatUtils:AddTrans("ruRU", "LID_BLOCKWORDS_HINT", "Одно слово в строке")
+ChatUtils:AddTrans("ruRU", "LID_FILTER", "Фильтр")
+ChatUtils:AddTrans("ruRU", "LID_BLOCKWORDS_HELP", "До 100 записей; сохраняются сразу. Удалить убирает строку. Пустые строки игнорируются.\n\n*ung: заканчивается на ung\nBe*: начинается с Be\n*hat*: содержит hat\nБез *: содержит введённый текст.\n\nРегистр и спецсимволы не учитываются; пробелы разделяют слова. Преобразование leetspeak:\n0=o, 1=i, 2=z, 3=e, 4=a, 5=s, 6=g, 7=t, 8=b, 9=g\nH4U5 = H-A-U-S = HAUS")

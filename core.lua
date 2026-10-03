@@ -340,17 +340,64 @@ function ChatUtils:GuildScan()
     end
 end
 
+function ChatUtils:NormalizeBlockword(text)
+    text = strlower(text)
+    for upper, lower in pairs({ ["Ä"] = "ä", ["Ö"] = "ö", ["Ü"] = "ü", ["ẞ"] = "ß" }) do
+        text = text:gsub(upper, lower)
+    end
+    text = text:gsub("%d", { ["0"] = "o", ["1"] = "i", ["2"] = "z", ["3"] = "e", ["4"] = "a", ["5"] = "s", ["6"] = "g", ["7"] = "t", ["8"] = "b", ["9"] = "g" })
+    text = text:gsub("[%p]", "")
+    text = text:gsub("[%z\1-\127\194-\244][\128-\191]*", function(character)
+        if #character < 2 then return character end
+        local code = character:byte(1) % (2 ^ (7 - #character))
+        for index = 2, #character do
+            code = code * 64 + character:byte(index) - 128
+        end
+
+        if code == 169 or code == 174 or code >= 768 and code <= 879 or code >= 8192 and code <= 11263 or code >= 126976 and code <= 129791 or code >= 11776 and code <= 11903 or code >= 12288 and code <= 12351 or code >= 65281 and code <= 65295 or code >= 65306 and code <= 65312 or code >= 65339 and code <= 65344 or code >= 65371 and code <= 65381 then return "" end
+        return character
+    end)
+    return text
+end
+
+function ChatUtils:MatchesBlockword(message, word)
+    if type(word) ~= "string" then return false end
+    word = word:match("^%s*(.-)%s*$")
+    if not word:find("*", 1, true) then
+        word = self:NormalizeBlockword(word)
+        return word ~= "" and message:find(word, 1, true) ~= nil
+    end
+
+    local parts = {}
+    local hasLetters = false
+    for part in (word .. "*"):gmatch("(.-)%*") do
+        part = self:NormalizeBlockword(part)
+        if part ~= "" then hasLetters = true end
+        local escaped = part:gsub("(%W)", "%%%1")
+        table.insert(parts, escaped)
+    end
+
+    if not hasLetters then return false end
+    local pattern = "^" .. table.concat(parts, ".*") .. "$"
+    for token in message:gmatch("%S+") do
+        if token:match(pattern) then return true end
+    end
+
+    return false
+end
+
 function ChatUtils.RemoveBadWords(self, event, msg)
     if not CanTouchValue(msg) or type(msg) ~= "string" then return end
     local words = CHUT and CHUT["BLOCKWORDS"]
-    msg = strlower(msg)
+    if type(words) ~= "table" and type(words) ~= "string" then return end
+    msg = ChatUtils:NormalizeBlockword(msg)
     if type(words) == "table" then
         for _, word in ipairs(words) do
-            if type(word) == "string" and word ~= "" and word ~= " " and msg:find(strlower(word), 1, true) then return true end
+            if ChatUtils:MatchesBlockword(msg, word) then return true end
         end
-    elseif type(words) == "string" and words ~= "" and words ~= " " then
-        for word in string.gmatch(words, "[^,]+") do
-            if msg:find(strlower(word), 1, true) then return true end
+    else
+        for word in words:gmatch("[^,]+") do
+            if ChatUtils:MatchesBlockword(msg, word) then return true end
         end
     end
 end

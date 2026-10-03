@@ -89,8 +89,8 @@ function ChatUtils:InitSettings()
     })
 
     cu_settings:AddCategory({
-        ["label"] = "LID_CHAT",
-        ["key"] = "CHAT"
+        ["label"] = "LID_FILTER",
+        ["key"] = "FILTER"
     })
 
     local blockwords = CreateFrame("Frame", nil, cu_settings.content)
@@ -110,7 +110,24 @@ function ChatUtils:InitSettings()
 
     blockwords.Label = blockwords:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     blockwords.Label:SetPoint("TOPLEFT", 0, 0)
-    blockwords.add = CreateFrame("Button", nil, blockwords, "UIPanelButtonTemplate")
+    local buttonTemplate = GameMenuFrame and GameMenuFrame.buttonTemplate or "GameMenuButtonTemplate"
+    blockwords.help = CreateFrame("Button", nil, blockwords)
+    blockwords.help:SetSize(22, 22)
+    blockwords.help:SetPoint("LEFT", blockwords.Label, "RIGHT", 6, 0)
+    blockwords.help:SetNormalTexture("Interface\\FriendsFrame\\InformationIcon")
+    blockwords.help:SetHighlightTexture("Interface\\FriendsFrame\\InformationIcon-Highlight", "ADD")
+    blockwords.help:GetHighlightTexture():SetAlpha(0.4)
+    blockwords.help:SetScript("OnEnter", function(button)
+        GameTooltip:SetOwner(button, "ANCHOR_RIGHT")
+        GameTooltip:SetText(ChatUtils:Trans("LID_BLOCKWORDS"))
+        GameTooltip:AddLine(ChatUtils:Trans("LID_BLOCKWORDS_HELP"), 1, 1, 1, true)
+        GameTooltip:Show()
+    end)
+    blockwords.help:SetScript("OnLeave", function() GameTooltip:Hide() end)
+    blockwords.help:SetScript("OnHide", function(button)
+        if GameTooltip:IsOwned(button) then GameTooltip:Hide() end
+    end)
+    blockwords.add = CreateFrame("Button", nil, blockwords, buttonTemplate)
     blockwords.add:SetSize(120, 22)
     blockwords.add:SetPoint("TOPRIGHT", 0, -20)
     blockwords.add:SetText(ChatUtils:Trans("LID_BLOCKWORDS_ADD"))
@@ -142,7 +159,7 @@ function ChatUtils:InitSettings()
                 row.number:SetPoint("LEFT", 0, 0)
                 row.number:SetWidth(28)
                 row.number:SetText(index .. ".")
-                row.delete = CreateFrame("Button", nil, row, "UIPanelButtonTemplate")
+                row.delete = CreateFrame("Button", nil, row, buttonTemplate)
                 row.delete:SetSize(90, 22)
                 row.delete:SetPoint("RIGHT", 0, 0)
                 row.delete:SetText(ChatUtils:Trans("LID_BLOCKWORDS_DELETE"))
@@ -196,6 +213,11 @@ function ChatUtils:InitSettings()
     end)
     blockwords:Refresh()
     ChatUtils.UI:Add(cu_settings, blockwords, blockwords:GetHeight(), ChatUtils:Trans("LID_BLOCKWORDS"), true, "BLOCKWORDS")
+
+    cu_settings:AddCategory({
+        ["label"] = "LID_CHAT",
+        ["key"] = "CHAT"
+    })
 
     cu_settings:AddCheckbox({
         ["label"] = "LID_SHOWITEMICON",
