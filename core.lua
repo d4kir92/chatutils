@@ -576,7 +576,7 @@ function ChatUtils:Init()
         local timestamp
         local ts
         if GetChatTimestampFormat and GetChatTimestampFormat() then
-            ts = BetterDate(GetChatTimestampFormat(), time())
+            ts = (BetterDate or date)(GetChatTimestampFormat(), time())
             ts = string.sub(ts, 1, #ts - 1)
             timestamp = "[" .. ts .. "] "
         end
