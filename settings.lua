@@ -1,6 +1,5 @@
 local _, ChatUtils = ...
-local ICON = 133457
-local VERSION = "0.4.16"
+local ICON = ChatUtils:GetAddonIcon()
 local DEFAULT_WIDTH = 460
 local DEFAULT_HEIGHT = 520
 local cu_settings = nil
@@ -319,10 +318,10 @@ ChatUtils:RegisterEvent(chutSetup, "PLAYER_LOGIN")
 chutSetup:SetScript("OnEvent", function(self, event, ...)
     if event == "PLAYER_LOGIN" then
         CHUT = CHUT or {}
-        ChatUtils:SetVersion(ICON, VERSION)
+        ChatUtils:SetVersion()
         ChatUtils:AddSlash("chut", ChatUtils.ToggleSettings)
         ChatUtils:AddSlash("chatutils", ChatUtils.ToggleSettings)
-        ChatUtils:SetAddonOutput("ChatUtils", ICON)
+        ChatUtils:SetAddonOutput()
         ChatUtils:CreateMinimapButton({
             ["name"] = "ChatUtils",
             ["icon"] = ICON,
