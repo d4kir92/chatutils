@@ -146,9 +146,13 @@ end
 
 function ChatUtils:ConvertMessage(typ, msg, name, ...)
     if not CanTouchValue(msg) then return false, msg, name, ... end
-    msg = ChatUtils:CheckWords(msg, name, "invite", "ginv", "inv")
-    msg = ChatUtils:CheckWords(msg, name, "einladen")
-    msg = ChatUtils:CheckWords(msg, name, "layer")
+    if CHUT["SHOWGUILDINVITELINKS"] then msg = ChatUtils:CheckWords(msg, name, "ginv") end
+    if CHUT["SHOWGROUPINVITELINKS"] then
+        msg = ChatUtils:CheckWords(msg, name, "invite", "inv")
+        msg = ChatUtils:CheckWords(msg, name, "einladen")
+        msg = ChatUtils:CheckWords(msg, name, "layer")
+    end
+
     local foundGold = false
     if string.find(msg, gShort, 1, true) then foundGold = true end
     if CHUT["SHOWGOLDICON"] then msg = ChatUtils:ReplaceMoney(msg, gShort, gLong, gold, foundGold) end
@@ -226,24 +230,92 @@ function ChatUtils:SetHyperlink(link, text, button)
         return true
     elseif typ == "invite" or typ == "inv" or typ == "ginv" or typ == "einladen" or typ == "layer" then
         local name = string.sub(link, poi + 1)
-        if button == "RightButton" then
-            if C_GuildInfo then
-                C_GuildInfo.Invite(name)
-            elseif GuildInvite then
-                GuildInvite(name)
-            end
+        if button == "RightButton" or (typ == "ginv" and button ~= "MiddleButton") then
+            ChatUtils:InviteToGuild(name)
             return true
         elseif button == "MiddleButton" then
             CommunitiesFrame:Show()
             ChatUtils:MSG("Currently only open the Window, later you can enter invitelink in settings to send the link directly to the player")
-        elseif C_PartyInfo and C_PartyInfo.InviteUnit then
-            C_PartyInfo.InviteUnit(name)
-        elseif InviteUnit then
-            InviteUnit(name)
+        else
+            ChatUtils:InviteToGroup(name)
         end
         return true
     end
     return false
+end
+
+function ChatUtils:InviteToGuild(name)
+    if C_GuildInfo and C_GuildInfo.Invite then
+        C_GuildInfo.Invite(name)
+    elseif GuildInvite then
+        GuildInvite(name)
+    end
+end
+
+function ChatUtils:InviteToGroup(name)
+    if C_PartyInfo and C_PartyInfo.InviteUnit then
+        C_PartyInfo.InviteUnit(name)
+    elseif InviteUnit then
+        InviteUnit(name)
+    end
+end
+
+function ChatUtils:ConvertGroupToRaid()
+    if IsInRaid and IsInRaid() then return true end
+    if not (IsInGroup and IsInGroup()) then return false end
+    if UnitIsGroupLeader and not UnitIsGroupLeader("player") then return true end
+    if C_PartyInfo and C_PartyInfo.ConvertToRaid then
+        C_PartyInfo.ConvertToRaid()
+    elseif ConvertToRaid then
+        ConvertToRaid()
+    end
+    return true
+end
+
+function ChatUtils:IsInviteRequest(msg, command, key)
+    local word = CHUT and CHUT[key]
+    if type(word) ~= "string" then return false end
+    word = strlower(strtrim(word))
+    if word == "" then return false end
+    local cmd, rest = strlower(strtrim(msg)):match("^(%S+)%s+(.+)$")
+    return cmd == command and rest == word
+end
+
+function ChatUtils:ShowGuildInvitePopup(name)
+    if StaticPopupDialogs["CHATUTILS_GUILDINVITE"] == nil then
+        StaticPopupDialogs["CHATUTILS_GUILDINVITE"] = {
+            text = ChatUtils:Trans("LID_GUILDINVITEPOPUP"),
+            button1 = INVITE or "Invite",
+            button2 = DECLINE or "Decline",
+            OnAccept = function(_, data) if data then ChatUtils:InviteToGuild(data) end end,
+            timeout = 120,
+            whileDead = true,
+            hideOnEscape = true,
+            preferredIndex = 3
+        }
+    end
+
+    StaticPopup_Show("CHATUTILS_GUILDINVITE", name, nil, name)
+end
+
+function ChatUtils:IsOwnName(name)
+    local short, realm = strsplit("-", name)
+    if short ~= UnitName("player") then return false end
+    return realm == nil or realm == "" or GetNormalizedRealmName == nil or realm == GetNormalizedRealmName()
+end
+
+function ChatUtils:OnInviteMessage(msg, name)
+    if not CanTouchAll(msg, name) then return end
+    if type(msg) ~= "string" or type(name) ~= "string" or name == "" then return end
+    if ChatUtils:IsOwnName(name) then return end
+    if CHUT["AUTOGUILDINVITE"] and ChatUtils:IsInviteRequest(msg, "ginv", "GUILDINVITEWORD") then
+        if IsInGuild and not IsInGuild() then return end
+        if CanGuildInvite and not CanGuildInvite() then return end
+        ChatUtils:ShowGuildInvitePopup(name)
+    elseif CHUT["AUTORAIDINVITE"] and ChatUtils:IsInviteRequest(msg, "rinv", "RAIDINVITEWORD") then
+        if not ChatUtils:ConvertGroupToRaid() then ChatUtils.pendingRaidConvert = GetTime() end
+        ChatUtils:InviteToGroup(name)
+    end
 end
 
 local PLYCache = {}
@@ -388,6 +460,7 @@ end
 
 function ChatUtils.RemoveBadWords(self, event, msg)
     if not CanTouchValue(msg) or type(msg) ~= "string" then return end
+    if CHUT and CHUT["BLOCKWORDSENABLED"] == false then return end
     local words = CHUT and CHUT["BLOCKWORDS"]
     if type(words) ~= "table" and type(words) ~= "string" then return end
     msg = ChatUtils:NormalizeBlockword(msg)
@@ -402,10 +475,39 @@ function ChatUtils.RemoveBadWords(self, event, msg)
     end
 end
 
+function ChatUtils:NeedsChatRewrite()
+    if CHUT == nil then return false end
+    if not CHUT["SHOWREALMNAME"] or CHUT["USESMALLCHANNELNAMES"] then return true end
+    if CHUT["SHOWCLASSICON"] or CHUT["SHOWRACEICON"] or CHUT["SHOWPLAYERLEVEL"] then return true end
+    return CHUT["SHOWROLEICON"] and UnitGroupRolesAssigned ~= nil
+end
+
+function ChatUtils:RefreshChatHooks()
+    if ChatUtils.UpdateChatHooks then ChatUtils.UpdateChatHooks() end
+end
+
 function ChatUtils:Init()
     for _, event in ipairs({"CHAT_MSG_CHANNEL", "CHAT_MSG_SAY", "CHAT_MSG_YELL", "CHAT_MSG_WHISPER"}) do
         ChatFrame_AddMessageEventFilter(event, ChatUtils.RemoveBadWords)
     end
+
+    local inviteFrame = CreateFrame("Frame")
+    for _, event in ipairs({"CHAT_MSG_WHISPER", "CHAT_MSG_SAY", "CHAT_MSG_YELL", "CHAT_MSG_CHANNEL", "CHAT_MSG_GUILD", "CHAT_MSG_OFFICER", "CHAT_MSG_PARTY", "CHAT_MSG_PARTY_LEADER", "CHAT_MSG_RAID", "CHAT_MSG_RAID_LEADER", "CHAT_MSG_INSTANCE_CHAT", "CHAT_MSG_INSTANCE_CHAT_LEADER"}) do
+        ChatUtils:RegisterEvent(inviteFrame, event)
+    end
+
+    ChatUtils:RegisterEvent(inviteFrame, "GROUP_ROSTER_UPDATE")
+    inviteFrame:SetScript("OnEvent", function(_, event, msg, name)
+        if event ~= "GROUP_ROSTER_UPDATE" then
+            ChatUtils:OnInviteMessage(msg, name)
+        elseif ChatUtils.pendingRaidConvert then
+            if GetTime() - ChatUtils.pendingRaidConvert > 120 then
+                ChatUtils.pendingRaidConvert = nil
+            elseif ChatUtils:ConvertGroupToRaid() then
+                ChatUtils.pendingRaidConvert = nil
+            end
+        end
+    end)
 
     local chatTypes = {}
     for i, v in pairs(_G) do
@@ -643,7 +745,7 @@ function ChatUtils:Init()
 
     local function UpdateHooks()
         local _, it = GetInstanceInfo()
-        local off = it == "arena" or it == "pvp"
+        local off = it == "arena" or it == "pvp" or not ChatUtils:NeedsChatRewrite()
         for i = 1, NUM_CHAT_WINDOWS do
             if i ~= 2 then
                 local frame = _G["ChatFrame" .. i]
@@ -660,6 +762,7 @@ function ChatUtils:Init()
     end
 
     UpdateHooks()
+    ChatUtils.UpdateChatHooks = UpdateHooks
     local function LOCALIconsFilter(sel, typ, msg, author, ...)
         local guid = select(10, ...)
         if author and guid and CanTouchAll(author, guid) then PLYCache[author] = guid end

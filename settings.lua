@@ -22,6 +22,13 @@ local function ApplyDefaults()
     ChatUtils:SV(CHUT, "SHOWPLAYERLEVEL", ChatUtils:GV(CHUT, "SHOWPLAYERLEVEL", true))
     ChatUtils:SV(CHUT, "SHOWREALMNAME", ChatUtils:GV(CHUT, "SHOWREALMNAME", true))
     ChatUtils:SV(CHUT, "USESMALLCHANNELNAMES", ChatUtils:GV(CHUT, "USESMALLCHANNELNAMES", true))
+    ChatUtils:SV(CHUT, "SHOWGUILDINVITELINKS", ChatUtils:GV(CHUT, "SHOWGUILDINVITELINKS", true))
+    ChatUtils:SV(CHUT, "SHOWGROUPINVITELINKS", ChatUtils:GV(CHUT, "SHOWGROUPINVITELINKS", true))
+    ChatUtils:SV(CHUT, "BLOCKWORDSENABLED", ChatUtils:GV(CHUT, "BLOCKWORDSENABLED", true))
+    ChatUtils:SV(CHUT, "AUTOGUILDINVITE", ChatUtils:GV(CHUT, "AUTOGUILDINVITE", false))
+    ChatUtils:SV(CHUT, "GUILDINVITEWORD", ChatUtils:GV(CHUT, "GUILDINVITEWORD", ""))
+    ChatUtils:SV(CHUT, "AUTORAIDINVITE", ChatUtils:GV(CHUT, "AUTORAIDINVITE", false))
+    ChatUtils:SV(CHUT, "RAIDINVITEWORD", ChatUtils:GV(CHUT, "RAIDINVITEWORD", ""))
 end
 
 local function GetCollapsed(key)
@@ -40,6 +47,25 @@ local function SetCollapsed(key, collapsed)
     else
         CHUT["COLLAPSED"][key] = nil
     end
+end
+
+local function AddHelpIcon(cb, title, help)
+    if cb == nil or cb.Label == nil then return end
+    local button = CreateFrame("Button", nil, cb.holder or cb)
+    button:SetSize(22, 22)
+    button:SetPoint("LEFT", cb.Label, "RIGHT", 6, 0)
+    button:SetNormalTexture("Interface\\FriendsFrame\\InformationIcon")
+    button:SetHighlightTexture("Interface\\FriendsFrame\\InformationIcon-Highlight", "ADD")
+    button:GetHighlightTexture():SetAlpha(0.4)
+    button:SetScript("OnEnter", function(sel)
+        GameTooltip:SetOwner(sel, "ANCHOR_RIGHT")
+        GameTooltip:SetText(ChatUtils:Trans(title))
+        GameTooltip:AddLine(ChatUtils:Trans(help), 1, 1, 1, true)
+        GameTooltip:Show()
+    end)
+
+    button:SetScript("OnLeave", function() GameTooltip:Hide() end)
+    button:SetScript("OnHide", function(sel) if GameTooltip:IsOwned(sel) then GameTooltip:Hide() end end)
 end
 
 function ChatUtils:ToggleSettings()
@@ -88,6 +114,13 @@ function ChatUtils:InitSettings()
     cu_settings:AddCategory({
         ["label"] = "LID_FILTER",
         ["key"] = "FILTER"
+    })
+
+    cu_settings:AddCheckbox({
+        ["label"] = "LID_BLOCKWORDSENABLED",
+        ["search"] = "BLOCKWORDSENABLED",
+        ["value"] = ChatUtils:GV(CHUT, "BLOCKWORDSENABLED", true),
+        ["func"] = function(value) ChatUtils:SV(CHUT, "BLOCKWORDSENABLED", value) end
     })
 
     local blockwords = CreateFrame("Frame", nil, cu_settings.content)
@@ -216,6 +249,70 @@ function ChatUtils:InitSettings()
     blockwords:Refresh()
     ChatUtils.UI:Add(cu_settings, blockwords, blockwords:GetHeight(), ChatUtils:Trans("LID_BLOCKWORDS"), true, "BLOCKWORDS")
     cu_settings:AddCategory({
+        ["label"] = "LID_INVITE",
+        ["key"] = "INVITE"
+    })
+
+    cu_settings:AddCategory({
+        ["label"] = "LID_INVITELINKS",
+        ["key"] = "INVITELINKS",
+        ["sub"] = true
+    })
+
+    local guildLinks = cu_settings:AddCheckbox({
+        ["label"] = "LID_SHOWGUILDINVITELINKS",
+        ["search"] = "SHOWGUILDINVITELINKS",
+        ["value"] = ChatUtils:GV(CHUT, "SHOWGUILDINVITELINKS", true),
+        ["func"] = function(value) ChatUtils:SV(CHUT, "SHOWGUILDINVITELINKS", value) end
+    })
+
+    AddHelpIcon(guildLinks, "LID_SHOWGUILDINVITELINKS", "LID_SHOWGUILDINVITELINKS_HELP")
+    local groupLinks = cu_settings:AddCheckbox({
+        ["label"] = "LID_SHOWGROUPINVITELINKS",
+        ["search"] = "SHOWGROUPINVITELINKS",
+        ["value"] = ChatUtils:GV(CHUT, "SHOWGROUPINVITELINKS", true),
+        ["func"] = function(value) ChatUtils:SV(CHUT, "SHOWGROUPINVITELINKS", value) end
+    })
+
+    AddHelpIcon(groupLinks, "LID_SHOWGROUPINVITELINKS", "LID_SHOWGROUPINVITELINKS_HELP")
+    cu_settings:AddCategory({
+        ["label"] = "LID_KEYWORDINVITE",
+        ["key"] = "KEYWORDINVITE",
+        ["sub"] = true
+    })
+
+    local guildInvite = cu_settings:AddCheckbox({
+        ["label"] = "LID_AUTOGUILDINVITE",
+        ["search"] = "AUTOGUILDINVITE",
+        ["value"] = ChatUtils:GV(CHUT, "AUTOGUILDINVITE", false),
+        ["func"] = function(value) ChatUtils:SV(CHUT, "AUTOGUILDINVITE", value) end
+    })
+
+    AddHelpIcon(guildInvite, "LID_AUTOGUILDINVITE", "LID_AUTOGUILDINVITE_HELP")
+
+    cu_settings:AddEditbox({
+        ["label"] = "LID_GUILDINVITEWORD",
+        ["search"] = "GUILDINVITEWORD",
+        ["value"] = ChatUtils:GV(CHUT, "GUILDINVITEWORD", ""),
+        ["func"] = function(value) ChatUtils:SV(CHUT, "GUILDINVITEWORD", value) end
+    })
+
+    local raidInvite = cu_settings:AddCheckbox({
+        ["label"] = "LID_AUTORAIDINVITE",
+        ["search"] = "AUTORAIDINVITE",
+        ["value"] = ChatUtils:GV(CHUT, "AUTORAIDINVITE", false),
+        ["func"] = function(value) ChatUtils:SV(CHUT, "AUTORAIDINVITE", value) end
+    })
+
+    AddHelpIcon(raidInvite, "LID_AUTORAIDINVITE", "LID_AUTORAIDINVITE_HELP")
+
+    cu_settings:AddEditbox({
+        ["label"] = "LID_RAIDINVITEWORD",
+        ["search"] = "RAIDINVITEWORD",
+        ["value"] = ChatUtils:GV(CHUT, "RAIDINVITEWORD", ""),
+        ["func"] = function(value) ChatUtils:SV(CHUT, "RAIDINVITEWORD", value) end
+    })
+    cu_settings:AddCategory({
         ["label"] = "LID_CHAT",
         ["key"] = "CHAT"
     })
@@ -238,7 +335,7 @@ function ChatUtils:InitSettings()
             ["label"] = "LID_SHOWROLEICON",
             ["search"] = "SHOWROLEICON",
             ["value"] = ChatUtils:GV(CHUT, "SHOWROLEICON", true),
-            ["func"] = function(value) ChatUtils:SV(CHUT, "SHOWROLEICON", value) end
+            ["func"] = function(value) ChatUtils:SV(CHUT, "SHOWROLEICON", value) ChatUtils:RefreshChatHooks() end
         })
     end
 
@@ -246,28 +343,28 @@ function ChatUtils:InitSettings()
         ["label"] = "LID_SHOWCLASSICON",
         ["search"] = "SHOWCLASSICON",
         ["value"] = ChatUtils:GV(CHUT, "SHOWCLASSICON", false),
-        ["func"] = function(value) ChatUtils:SV(CHUT, "SHOWCLASSICON", value) end
+        ["func"] = function(value) ChatUtils:SV(CHUT, "SHOWCLASSICON", value) ChatUtils:RefreshChatHooks() end
     })
 
     cu_settings:AddCheckbox({
         ["label"] = "LID_SHOWRACEICON",
         ["search"] = "SHOWRACEICON",
         ["value"] = ChatUtils:GV(CHUT, "SHOWRACEICON", false),
-        ["func"] = function(value) ChatUtils:SV(CHUT, "SHOWRACEICON", value) end
+        ["func"] = function(value) ChatUtils:SV(CHUT, "SHOWRACEICON", value) ChatUtils:RefreshChatHooks() end
     })
 
     cu_settings:AddCheckbox({
         ["label"] = "LID_SHOWPLAYERLEVEL",
         ["search"] = "SHOWPLAYERLEVEL",
         ["value"] = ChatUtils:GV(CHUT, "SHOWPLAYERLEVEL", true),
-        ["func"] = function(value) ChatUtils:SV(CHUT, "SHOWPLAYERLEVEL", value) end
+        ["func"] = function(value) ChatUtils:SV(CHUT, "SHOWPLAYERLEVEL", value) ChatUtils:RefreshChatHooks() end
     })
 
     cu_settings:AddCheckbox({
         ["label"] = "LID_SHOWREALMNAME",
         ["search"] = "SHOWREALMNAME",
         ["value"] = ChatUtils:GV(CHUT, "SHOWREALMNAME", true),
-        ["func"] = function(value) ChatUtils:SV(CHUT, "SHOWREALMNAME", value) end
+        ["func"] = function(value) ChatUtils:SV(CHUT, "SHOWREALMNAME", value) ChatUtils:RefreshChatHooks() end
     })
 
     cu_settings:AddCategory({
@@ -280,7 +377,7 @@ function ChatUtils:InitSettings()
         ["label"] = "LID_USESMALLCHANNELNAMES",
         ["search"] = "USESMALLCHANNELNAMES",
         ["value"] = ChatUtils:GV(CHUT, "USESMALLCHANNELNAMES", true),
-        ["func"] = function(value) ChatUtils:SV(CHUT, "USESMALLCHANNELNAMES", value) end
+        ["func"] = function(value) ChatUtils:SV(CHUT, "USESMALLCHANNELNAMES", value) ChatUtils:RefreshChatHooks() end
     })
 
     cu_settings:AddCategory({
