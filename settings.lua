@@ -259,14 +259,19 @@ function ChatUtils:InitSettings()
         ["sub"] = true
     })
 
-    local guildLinks = cu_settings:AddCheckbox({
-        ["label"] = "LID_SHOWGUILDINVITELINKS",
-        ["search"] = "SHOWGUILDINVITELINKS",
-        ["value"] = ChatUtils:GV(CHUT, "SHOWGUILDINVITELINKS", true),
-        ["func"] = function(value) ChatUtils:SV(CHUT, "SHOWGUILDINVITELINKS", value) end
-    })
+    local guildOwner = ChatUtils.GetGuildInviteOwner and ChatUtils:GetGuildInviteOwner()
+    local ownsGuildInvite = guildOwner == nil or guildOwner == "ChatUtils"
+    if ownsGuildInvite then
+        local guildLinks = cu_settings:AddCheckbox({
+            ["label"] = "LID_SHOWGUILDINVITELINKS",
+            ["search"] = "SHOWGUILDINVITELINKS",
+            ["value"] = ChatUtils:GV(CHUT, "SHOWGUILDINVITELINKS", true),
+            ["func"] = function(value) ChatUtils:SV(CHUT, "SHOWGUILDINVITELINKS", value) end
+        })
 
-    AddHelpIcon(guildLinks, "LID_SHOWGUILDINVITELINKS", "LID_SHOWGUILDINVITELINKS_HELP")
+        AddHelpIcon(guildLinks, "LID_SHOWGUILDINVITELINKS", "LID_SHOWGUILDINVITELINKS_HELP")
+    end
+
     local groupLinks = cu_settings:AddCheckbox({
         ["label"] = "LID_SHOWGROUPINVITELINKS",
         ["search"] = "SHOWGROUPINVITELINKS",
@@ -281,21 +286,22 @@ function ChatUtils:InitSettings()
         ["sub"] = true
     })
 
-    local guildInvite = cu_settings:AddCheckbox({
-        ["label"] = "LID_AUTOGUILDINVITE",
-        ["search"] = "AUTOGUILDINVITE",
-        ["value"] = ChatUtils:GV(CHUT, "AUTOGUILDINVITE", false),
-        ["func"] = function(value) ChatUtils:SV(CHUT, "AUTOGUILDINVITE", value) end
-    })
+    if ownsGuildInvite then
+        local guildInvite = cu_settings:AddCheckbox({
+            ["label"] = "LID_AUTOGUILDINVITE",
+            ["search"] = "AUTOGUILDINVITE",
+            ["value"] = ChatUtils:GV(CHUT, "AUTOGUILDINVITE", false),
+            ["func"] = function(value) ChatUtils:SV(CHUT, "AUTOGUILDINVITE", value) end
+        })
 
-    AddHelpIcon(guildInvite, "LID_AUTOGUILDINVITE", "LID_AUTOGUILDINVITE_HELP")
-
-    cu_settings:AddEditbox({
-        ["label"] = "LID_GUILDINVITEWORD",
-        ["search"] = "GUILDINVITEWORD",
-        ["value"] = ChatUtils:GV(CHUT, "GUILDINVITEWORD", ""),
-        ["func"] = function(value) ChatUtils:SV(CHUT, "GUILDINVITEWORD", value) end
-    })
+        AddHelpIcon(guildInvite, "LID_AUTOGUILDINVITE", "LID_AUTOGUILDINVITE_HELP")
+        cu_settings:AddEditbox({
+            ["label"] = "LID_GUILDINVITEWORD",
+            ["search"] = "GUILDINVITEWORD",
+            ["value"] = ChatUtils:GV(CHUT, "GUILDINVITEWORD", ""),
+            ["func"] = function(value) ChatUtils:SV(CHUT, "GUILDINVITEWORD", value) end
+        })
+    end
 
     local raidInvite = cu_settings:AddCheckbox({
         ["label"] = "LID_AUTORAIDINVITE",
