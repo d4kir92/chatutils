@@ -716,7 +716,14 @@ function ChatUtils:Init()
             end
 
             if CHUT and CHUT["USESMALLCHANNELNAMES"] and (chanReplaced or chanName) then
-                local ok, replaced = pcall(function() return ChatUtils:ReplaceStr(msg, chanReplaced or chanName, ChatUtils:ChatOnlyBig(chanName)) end)
+                local ok, replaced = pcall(function()
+                    return msg:gsub("(|Hchannel:[^|]*|h)(.-)(|h)", function(prefix, label, suffix)
+                        local name = chanReplaced or chanName
+                        local first, last = label:find(name, 1, true)
+                        if first then label = label:sub(1, first - 1) .. ChatUtils:ChatOnlyBig(chanName) .. label:sub(last + 1) end
+                        return prefix .. label .. suffix
+                    end, 1)
+                end)
                 if ok and replaced then msg = replaced end
             end
 
