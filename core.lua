@@ -281,9 +281,14 @@ function ChatUtils:IsInviteRequest(msg, command, key)
 end
 
 function ChatUtils:IsOwnName(name)
+    local key, ownName, ownRealm = self:GetPlayerCharacterKey()
+    if key and (name == key or name == ownName) then return true end
+    if key and not self:IsForever() then return false end
+
     local short, realm = strsplit("-", name)
-    if short ~= UnitName("player") then return false end
-    return realm == nil or realm == "" or GetNormalizedRealmName == nil or realm == GetNormalizedRealmName()
+    local legacyName = UnitName("player")
+    if not CanTouchValue(legacyName) or short ~= legacyName then return false end
+    return realm == nil or realm == "" or GetNormalizedRealmName == nil or realm == (ownRealm or GetNormalizedRealmName())
 end
 
 function ChatUtils:OnInviteMessage(msg, name)
@@ -332,6 +337,16 @@ function ChatUtils:SetLevel(name, realm, level, from)
     name, realm = ChatUtils:FixName(name, realm)
     if not CanTouchAll(name, realm) then return end
     if name and realm then levelTab[name .. "-" .. realm] = level end
+end
+
+local function UpdatePlayerLevel()
+    local key, name, realm = ChatUtils:GetPlayerCharacterKey()
+    local level = UnitLevel("player")
+    if key then ChatUtils:SetLevel(name, realm, level) end
+    if not key or ChatUtils:IsForever() then
+        local legacyName = UnitName("player")
+        if CanTouchValue(legacyName) and legacyName then ChatUtils:SetLevel(legacyName, realm, level) end
+    end
 end
 
 function ChatUtils:WhoScan()
@@ -773,7 +788,7 @@ function ChatUtils:Init()
         ChatFrame_AddMessageEventFilter(typ, LOCALIconsFilter)
     end
 
-    ChatUtils:SetLevel(UnitName("player"), nil, UnitLevel("player"))
+    UpdatePlayerLevel()
     local delay = 0.6
     local lf = CreateFrame("Frame", "IALevelFrame")
     lf:RegisterEvent("GROUP_ROSTER_UPDATE")
@@ -793,7 +808,7 @@ function ChatUtils:Init()
         elseif event == "GUILD_ROSTER_UPDATE" or event == "CHAT_MSG_GUILD" or event == "CHAT_MSG_OFFICER" then
             C_Timer.After(delay, ChatUtils.GuildScan)
         elseif event == "PLAYER_LEVEL_UP" then
-            C_Timer.After(delay, function() ChatUtils:SetLevel(UnitName("player"), GetRealmName(), UnitLevel("player")) end)
+            C_Timer.After(delay, UpdatePlayerLevel)
         elseif event == "WHO_LIST_UPDATE" then
             C_Timer.After(delay, ChatUtils.WhoScan)
         elseif event == "FRIENDLIST_UPDATE" then
