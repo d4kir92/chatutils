@@ -471,7 +471,7 @@ end
 function ChatUtils:NeedsChatRewrite()
     if CHUT == nil then return false end
     if not CHUT["SHOWREALMNAME"] or CHUT["USESMALLCHANNELNAMES"] then return true end
-    if CHUT["SHOWCLASSICON"] or CHUT["SHOWRACEICON"] or CHUT["SHOWPLAYERLEVEL"] then return true end
+    if CHUT["SHOWCLASSICON"] or CHUT["SHOWRACEICON"] or CHUT["SHOWPLAYERLEVEL"] or CHUT["STRONGCLASSCOLORS"] then return true end
     return CHUT["SHOWROLEICON"] and UnitGroupRolesAssigned ~= nil
 end
 
@@ -674,6 +674,35 @@ function ChatUtils:Init()
         return ok and res or msg
     end
 
+    local strongerClassColors = {}
+    for _, color in pairs(RAID_CLASS_COLORS or {}) do
+        local code = color.colorStr
+        if code and code:match("^%x%x%x%x%x%x%x%x$") then
+            local r = tonumber(code:sub(3, 4), 16)
+            local g = tonumber(code:sub(5, 6), 16)
+            local b = tonumber(code:sub(7, 8), 16)
+            local brightest = math.max(r, g, b)
+            local boost = (255 - brightest) * 0.25
+            local function Stronger(channel)
+                return math.floor(math.max(0, brightest + boost - (brightest - channel) * 1.25) + 0.5)
+            end
+
+            strongerClassColors[code:lower()] = string.format("%s%02x%02x%02x", code:sub(1, 2), Stronger(r), Stronger(g), Stronger(b))
+        end
+    end
+
+    local function StrengthenClassColors(msg)
+        if not CHUT["STRONGCLASSCOLORS"] then return msg end
+        return (msg:gsub("(|H([^:|]+):[^|]*|h)(.-)(|h)", function(prefix, linkType, display, suffix)
+            if not allowedTyp[linkType] and linkType ~= "BNplayer" and linkType ~= "BNplayerCommunity" then return end
+            display = display:gsub("^(%[?)|c(%x%x%x%x%x%x%x%x)", function(bracket, code)
+                local stronger = strongerClassColors[code:lower()]
+                if stronger then return bracket .. "|c" .. stronger end
+            end)
+            return prefix .. display .. suffix
+        end))
+    end
+
     local function AddMessage(sel, message, author, ...)
         if not message then return hooks[sel](sel, message, author, ...) end
         if type(message) ~= "string" then return hooks[sel](sel, message, author, ...) end
@@ -754,6 +783,7 @@ function ChatUtils:Init()
             msg = timestamp .. msg
         end
 
+        msg = StrengthenClassColors(msg)
         msg = ShortenLinkRealms(msg)
         return hooks[sel](sel, msg, author, ...)
     end

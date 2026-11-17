@@ -14,6 +14,7 @@ local function ApplyDefaults()
     ChatUtils:SV(CHUT, "SHOWMINIMAPBUTTON", ChatUtils:GV(CHUT, "SHOWMINIMAPBUTTON", ShowMinimapButtonDefault()))
     if UnitGroupRolesAssigned then ChatUtils:SV(CHUT, "SHOWROLEICON", ChatUtils:GV(CHUT, "SHOWROLEICON", true)) end
     ChatUtils:SV(CHUT, "SHOWCLASSICON", ChatUtils:GV(CHUT, "SHOWCLASSICON", false))
+    ChatUtils:SV(CHUT, "STRONGCLASSCOLORS", ChatUtils:GV(CHUT, "STRONGCLASSCOLORS", false))
     ChatUtils:SV(CHUT, "SHOWRACEICON", ChatUtils:GV(CHUT, "SHOWRACEICON", false))
     ChatUtils:SV(CHUT, "SHOWITEMICON", ChatUtils:GV(CHUT, "SHOWITEMICON", true))
     ChatUtils:SV(CHUT, "SHOWGOLDICON", ChatUtils:GV(CHUT, "SHOWGOLDICON", true))
@@ -350,6 +351,13 @@ function ChatUtils:InitSettings()
         ["search"] = "SHOWCLASSICON",
         ["value"] = ChatUtils:GV(CHUT, "SHOWCLASSICON", false),
         ["func"] = function(value) ChatUtils:SV(CHUT, "SHOWCLASSICON", value) ChatUtils:RefreshChatHooks() end
+    })
+
+    cu_settings:AddCheckbox({
+        ["label"] = "LID_STRONGCLASSCOLORS",
+        ["search"] = "STRONGCLASSCOLORS",
+        ["value"] = ChatUtils:GV(CHUT, "STRONGCLASSCOLORS", false),
+        ["func"] = function(value) ChatUtils:SV(CHUT, "STRONGCLASSCOLORS", value) ChatUtils:RefreshChatHooks() end
     })
 
     cu_settings:AddCheckbox({
