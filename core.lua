@@ -325,6 +325,12 @@ function ChatUtils:FixName(name, realm)
 end
 
 local levelTab = {}
+ChatUtils.guidLevels = {}
+function ChatUtils:GetLevelByGUID(guid)
+    if not guid or not CanTouchValue(guid) then return nil end
+    return ChatUtils.guidLevels[guid]
+end
+
 function ChatUtils:GetLevel(name, realm)
     if not CanTouchAll(name, realm) then return nil end
     name, realm = ChatUtils:FixName(name, realm)
@@ -396,7 +402,8 @@ function ChatUtils:GuildScan()
         C_GuildInfo.GuildRoster()
         local max = GetNumGuildMembers()
         for i = 1, max do
-            local Name, _, _, Level = GetGuildRosterInfo(i)
+            local Name, _, _, Level, _, _, _, _, _, _, _, _, _, _, _, _, guid = GetGuildRosterInfo(i)
+            if guid and Level and CanTouchAll(guid, Level) then ChatUtils.guidLevels[guid] = Level end
             if Name and CanTouchValue(Name) then
                 local name, realm = Name:match("([^%-]+)%-?(.*)")
                 if name then ChatUtils:SetLevel(name, realm, Level, "GuildScan") end
@@ -606,7 +613,7 @@ function ChatUtils:Init()
                         if role and CanTouchValue(role) and role ~= "" and role ~= "NONE" then msg = "|A:" .. ChatUtils:GetRoleIcon(role) .. ":16:16:0:0|a" .. msg end
                     end
 
-                    local level = ChatUtils:GetLevel(name, realm)
+                    local level = ChatUtils:GetLevelByGUID(guid) or ChatUtils:GetLevel(name, realm)
                     if CHUT["SHOWPLAYERLEVEL"] and level and CanTouchAll(level, name) and level > 0 then
                         if string.find(msg, name .. "|r%]") then
                             msg = string.gsub(msg, name .. "|r%]", level .. ":" .. name .. "|r%]", 1)
