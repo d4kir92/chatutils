@@ -1,6 +1,6 @@
 local _, ChatUtils = ...
 local ICON = ChatUtils:GetAddonIcon()
-local DEFAULT_WIDTH = 460
+local DEFAULT_WIDTH = 620
 local DEFAULT_HEIGHT = 520
 local cu_settings = nil
 local function ShowMinimapButtonDefault()
@@ -80,9 +80,10 @@ function ChatUtils:InitSettings()
     cu_settings = ChatUtils:CreateUIWindow({
         ["name"] = "ChatUtilsSettings",
         ["pTab"] = {"CENTER"},
-        ["width"] = ChatUtils:GV(CHUT, "WINDOWWIDTH", DEFAULT_WIDTH),
+        ["width"] = math.max(ChatUtils:GV(CHUT, "WINDOWWIDTH", DEFAULT_WIDTH), DEFAULT_WIDTH),
         ["height"] = ChatUtils:GV(CHUT, "WINDOWHEIGHT", DEFAULT_HEIGHT),
-        ["minWidth"] = 360,
+        ["navigation"] = true,
+        ["minWidth"] = 520,
         ["minHeight"] = 240,
         ["onResize"] = function(width, height)
             ChatUtils:SV(CHUT, "WINDOWWIDTH", width)
@@ -113,6 +114,8 @@ function ChatUtils:InitSettings()
             end
         end
     })
+
+    if ChatUtils.WhatsNew then ChatUtils.WhatsNew:AddSettingsCheckbox(cu_settings, "2026-11-20") end
 
     cu_settings:AddCategory({
         ["label"] = "LID_FILTER",
@@ -322,20 +325,15 @@ function ChatUtils:InitSettings()
         ["func"] = function(value) ChatUtils:SV(CHUT, "RAIDINVITEWORD", value) end
     })
     cu_settings:AddCategory({
-        ["label"] = "LID_CHAT",
-        ["key"] = "CHAT"
-    })
-
-    cu_settings:AddCheckbox({
-        ["label"] = "LID_SHOWITEMICON",
-        ["search"] = "SHOWITEMICON",
-        ["value"] = ChatUtils:GV(CHUT, "SHOWITEMICON", true),
-        ["func"] = function(value) ChatUtils:SV(CHUT, "SHOWITEMICON", value) end
+        ["label"] = "LID_CHATWINDOW",
+        ["key"] = "CHATWINDOW"
     })
 
     cu_settings:AddCheckbox({
         ["label"] = "LID_CHATFADE",
         ["search"] = "CHATFADE",
+        ["added"] = "2026-11-20",
+        ["whatsNew"] = "LID_CHATFADE_DESC",
         ["value"] = ChatUtils:GV(CHUT, "CHATFADE", false),
         ["func"] = function(value) ChatUtils:SV(CHUT, "CHATFADE", value) ChatUtils:UpdateChatFading() end
     })
@@ -343,6 +341,7 @@ function ChatUtils:InitSettings()
     cu_settings:AddSlider({
         ["label"] = "LID_CHATFADETIME",
         ["search"] = "CHATFADETIME",
+        ["added"] = "2026-11-20",
         ["value"] = ChatUtils:GV(CHUT, "CHATFADETIME", 60),
         ["min"] = 5,
         ["max"] = 600,
@@ -350,10 +349,16 @@ function ChatUtils:InitSettings()
         ["func"] = function(value) ChatUtils:SV(CHUT, "CHATFADETIME", value) ChatUtils:UpdateChatFading() end
     })
 
+    cu_settings:AddCheckbox({
+        ["label"] = "LID_USESMALLCHANNELNAMES",
+        ["search"] = "USESMALLCHANNELNAMES",
+        ["value"] = ChatUtils:GV(CHUT, "USESMALLCHANNELNAMES", true),
+        ["func"] = function(value) ChatUtils:SV(CHUT, "USESMALLCHANNELNAMES", value) ChatUtils:RefreshChatHooks() end
+    })
+
     cu_settings:AddCategory({
         ["label"] = "LID_CHARACTER",
-        ["key"] = "CHARACTER",
-        ["sub"] = true
+        ["key"] = "CHARACTER"
     })
 
     if UnitGroupRolesAssigned then
@@ -401,22 +406,15 @@ function ChatUtils:InitSettings()
     })
 
     cu_settings:AddCategory({
-        ["label"] = "LID_CHATCHANNEL",
-        ["key"] = "CHATCHANNEL",
-        ["sub"] = true
+        ["label"] = "LID_ITEMMONEY",
+        ["key"] = "ITEMMONEY"
     })
 
     cu_settings:AddCheckbox({
-        ["label"] = "LID_USESMALLCHANNELNAMES",
-        ["search"] = "USESMALLCHANNELNAMES",
-        ["value"] = ChatUtils:GV(CHUT, "USESMALLCHANNELNAMES", true),
-        ["func"] = function(value) ChatUtils:SV(CHUT, "USESMALLCHANNELNAMES", value) ChatUtils:RefreshChatHooks() end
-    })
-
-    cu_settings:AddCategory({
-        ["label"] = "LID_GOLD",
-        ["key"] = "GOLD",
-        ["sub"] = true
+        ["label"] = "LID_SHOWITEMICON",
+        ["search"] = "SHOWITEMICON",
+        ["value"] = ChatUtils:GV(CHUT, "SHOWITEMICON", true),
+        ["func"] = function(value) ChatUtils:SV(CHUT, "SHOWITEMICON", value) end
     })
 
     cu_settings:AddCheckbox({
@@ -440,6 +438,7 @@ function ChatUtils:InitSettings()
         ["func"] = function(value) ChatUtils:SV(CHUT, "SHOWCOPPERICON", value) end
     })
 
+    cu_settings:SetCategoryOrder({"GENERAL", "CHATWINDOW", "CHARACTER", "ITEMMONEY", "FILTER", "INVITE"})
     cu_settings:ResumeLayout()
 end
 
@@ -466,7 +465,17 @@ chutSetup:SetScript("OnEvent", function(self, event, ...)
             end
         })
 
+        CHUT["WHATSNEW"] = CHUT["WHATSNEW"] or {}
+        ChatUtils.WhatsNew = ChatUtils:CreateUIWhatsNew({
+            ["name"] = "ChatUtilsWhatsNew",
+            ["title"] = format("|T%d:16:16:0:0|t ChatUtils v%s", ICON, ChatUtils:GetVersion()),
+            ["db"] = CHUT["WHATSNEW"],
+            ["since"] = "2026-11-20",
+            ["getSettings"] = function() return cu_settings end
+        })
+
         ChatUtils:InitSettings()
         ChatUtils:Init()
+        C_Timer.After(2, function() ChatUtils.WhatsNew:ShowIfNew() end)
     end
 end)
