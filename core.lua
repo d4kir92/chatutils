@@ -486,7 +486,41 @@ function ChatUtils:RefreshChatHooks()
     if ChatUtils.UpdateChatHooks then ChatUtils.UpdateChatHooks() end
 end
 
+ChatUtils.fadeDefaults = {}
+function ChatUtils:ApplyChatFading(frame)
+    if frame == nil or frame.SetTimeVisible == nil or frame.GetTimeVisible == nil then return end
+    local defaults = ChatUtils.fadeDefaults[frame]
+    if CHUT and CHUT["CHATFADE"] then
+        if defaults == nil then
+            ChatUtils.fadeDefaults[frame] = {
+                time = frame:GetTimeVisible(),
+                fading = frame.GetFading and frame:GetFading()
+            }
+        end
+
+        frame:SetFading(true)
+        frame:SetTimeVisible(tonumber(CHUT["CHATFADETIME"]) or 60)
+    elseif defaults then
+        frame:SetTimeVisible(defaults.time)
+        if defaults.fading ~= nil then frame:SetFading(defaults.fading) end
+        ChatUtils.fadeDefaults[frame] = nil
+    end
+end
+
+function ChatUtils:UpdateChatFading()
+    for i = 1, NUM_CHAT_WINDOWS or 10 do
+        ChatUtils:ApplyChatFading(_G["ChatFrame" .. i])
+    end
+
+    for _, name in ipairs(CHAT_FRAMES or {}) do
+        ChatUtils:ApplyChatFading(_G[name])
+    end
+end
+
 function ChatUtils:Init()
+    ChatUtils:UpdateChatFading()
+    if FCF_OpenTemporaryWindow then hooksecurefunc("FCF_OpenTemporaryWindow", function() ChatUtils:UpdateChatFading() end) end
+    if FCF_SetWindowFading then hooksecurefunc("FCF_SetWindowFading", function(frame) ChatUtils:ApplyChatFading(frame) end) end
     for _, event in ipairs({"CHAT_MSG_CHANNEL", "CHAT_MSG_SAY", "CHAT_MSG_YELL", "CHAT_MSG_WHISPER"}) do
         ChatFrame_AddMessageEventFilter(event, ChatUtils.RemoveBadWords)
     end

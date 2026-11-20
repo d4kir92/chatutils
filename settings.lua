@@ -30,6 +30,8 @@ local function ApplyDefaults()
     ChatUtils:SV(CHUT, "GUILDINVITEWORD", ChatUtils:GV(CHUT, "GUILDINVITEWORD", ""))
     ChatUtils:SV(CHUT, "AUTORAIDINVITE", ChatUtils:GV(CHUT, "AUTORAIDINVITE", false))
     ChatUtils:SV(CHUT, "RAIDINVITEWORD", ChatUtils:GV(CHUT, "RAIDINVITEWORD", ""))
+    ChatUtils:SV(CHUT, "CHATFADE", ChatUtils:GV(CHUT, "CHATFADE", false))
+    ChatUtils:SV(CHUT, "CHATFADETIME", ChatUtils:GV(CHUT, "CHATFADETIME", 60))
 end
 
 local function GetCollapsed(key)
@@ -329,6 +331,23 @@ function ChatUtils:InitSettings()
         ["search"] = "SHOWITEMICON",
         ["value"] = ChatUtils:GV(CHUT, "SHOWITEMICON", true),
         ["func"] = function(value) ChatUtils:SV(CHUT, "SHOWITEMICON", value) end
+    })
+
+    cu_settings:AddCheckbox({
+        ["label"] = "LID_CHATFADE",
+        ["search"] = "CHATFADE",
+        ["value"] = ChatUtils:GV(CHUT, "CHATFADE", false),
+        ["func"] = function(value) ChatUtils:SV(CHUT, "CHATFADE", value) ChatUtils:UpdateChatFading() end
+    })
+
+    cu_settings:AddSlider({
+        ["label"] = "LID_CHATFADETIME",
+        ["search"] = "CHATFADETIME",
+        ["value"] = ChatUtils:GV(CHUT, "CHATFADETIME", 60),
+        ["min"] = 5,
+        ["max"] = 600,
+        ["step"] = 5,
+        ["func"] = function(value) ChatUtils:SV(CHUT, "CHATFADETIME", value) ChatUtils:UpdateChatFading() end
     })
 
     cu_settings:AddCategory({
