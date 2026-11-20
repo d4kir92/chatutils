@@ -359,7 +359,14 @@ function ChatUtils:WhoScan()
     if C_FriendList == nil then return end
     for i = 1, C_FriendList.GetNumWhoResults() do
         local info = C_FriendList.GetWhoInfo(i)
-        if info and info.fullName and info.level then ChatUtils:SetLevel(info.fullName, nil, info.level, "WhoScan") end
+        if info and info.fullName and info.level and CanTouchAll(info.fullName, info.level) then
+            ChatUtils:SetLevel(info.fullName, nil, info.level, "WhoScan")
+            if ChatUtils:IsForever() then
+                local short, realm = strsplit("-", info.fullName)
+                local first = short and strsplit(" ", short)
+                if first and first ~= short then ChatUtils:SetLevel(first, realm, info.level, "WhoScan") end
+            end
+        end
     end
 end
 
@@ -371,29 +378,45 @@ function ChatUtils:FriendScan()
     end
 end
 
+function ChatUtils:StoreUnitLevel(unit, from)
+    if not UnitExists(unit) then return true end
+    local level = UnitLevel(unit)
+    if not CanTouchValue(level) or not level or level <= 0 then return false end
+    local guid = UnitGUID(unit)
+    if guid and CanTouchValue(guid) then ChatUtils.guidLevels[guid] = level end
+    local name, second = UnitName(unit)
+    if not CanTouchAll(name, second) or not name then return true end
+    if ChatUtils:IsForever() then
+        if second and second ~= "" and not name:find(" ", 1, true) then ChatUtils:SetLevel(name .. " " .. second, nil, level, from) end
+        ChatUtils:SetLevel(name, nil, level, from)
+    else
+        ChatUtils:SetLevel(name, second, level, from)
+    end
+
+    return true
+end
+
+ChatUtils.partyScanTries = 0
 function ChatUtils:PartyScan()
     local max = GetNumSubgroupMembers or GetNumPartyMembers
     local success = true
     for i = 1, max() do
-        local name, realm = UnitName("party" .. i)
-        if name then
-            if UnitLevel("party" .. i) == 0 then
-                success = false
-            else
-                ChatUtils:SetLevel(name, realm, UnitLevel("party" .. i), "PartyScan")
-            end
-        end
+        if not ChatUtils:StoreUnitLevel("party" .. i, "PartyScan") then success = false end
     end
 
-    if not success then C_Timer.After(0.1, ChatUtils.PartyScan) end
+    if success then
+        ChatUtils.partyScanTries = 0
+    elseif ChatUtils.partyScanTries < 30 then
+        ChatUtils.partyScanTries = ChatUtils.partyScanTries + 1
+        C_Timer.After(1, ChatUtils.PartyScan)
+    end
 end
 
 function ChatUtils:RaidScan()
+    if IsInRaid and not IsInRaid() then return end
     local max = GetNumGroupMembers or GetNumRaidMembers
     for i = 1, max() do
-        local _, _, _, Level = GetRaidRosterInfo(i)
-        local Name, Server = UnitName("raid" .. i)
-        if Name then ChatUtils:SetLevel(Name, Server, Level, "RaidScan") end
+        ChatUtils:StoreUnitLevel("raid" .. i, "RaidScan")
     end
 end
 
@@ -647,7 +670,7 @@ function ChatUtils:Init()
                         if role and CanTouchValue(role) and role ~= "" and role ~= "NONE" then msg = "|A:" .. ChatUtils:GetRoleIcon(role) .. ":16:16:0:0|a" .. msg end
                     end
 
-                    local level = ChatUtils:GetLevelByGUID(guid) or ChatUtils:GetLevel(name, realm)
+                    local level = ChatUtils:GetLevelByGUID(guid) or ChatUtils:GetLevel(name, realm) or ChatUtils:GetLevel(id)
                     if CHUT["SHOWPLAYERLEVEL"] and level and CanTouchAll(level, name) and level > 0 then
                         if string.find(msg, name .. "|r%]") then
                             msg = string.gsub(msg, name .. "|r%]", level .. ":" .. name .. "|r%]", 1)
@@ -871,6 +894,8 @@ function ChatUtils:Init()
     lf:RegisterEvent("GUILD_ROSTER_UPDATE")
     lf:RegisterEvent("RAID_ROSTER_UPDATE")
     lf:RegisterEvent("WHO_LIST_UPDATE")
+    lf:RegisterEvent("CHAT_MSG_SYSTEM")
+    lf:RegisterEvent("UNIT_LEVEL")
     lf:RegisterEvent("PLAYER_LEVEL_UP")
     lf:RegisterEvent("PLAYER_ENTERING_WORLD")
     lf:SetScript("OnEvent", function(sel, event, ...)
@@ -882,6 +907,17 @@ function ChatUtils:Init()
             C_Timer.After(delay, UpdatePlayerLevel)
         elseif event == "WHO_LIST_UPDATE" then
             C_Timer.After(delay, ChatUtils.WhoScan)
+        elseif event == "CHAT_MSG_SYSTEM" then
+            if not ChatUtils.whoScanPending then
+                ChatUtils.whoScanPending = true
+                C_Timer.After(delay, function()
+                    ChatUtils.whoScanPending = false
+                    ChatUtils:WhoScan()
+                end)
+            end
+        elseif event == "UNIT_LEVEL" then
+            C_Timer.After(delay, ChatUtils.PartyScan)
+            C_Timer.After(delay, ChatUtils.RaidScan)
         elseif event == "FRIENDLIST_UPDATE" then
             C_Timer.After(delay, ChatUtils.FriendScan)
         elseif event == "RAID_ROSTER_UPDATE" or event == "CHAT_MSG_RAID" or event == "CHAT_MSG_INSTANCE_CHAT" then
