@@ -456,9 +456,10 @@ chutSetup:SetScript("OnEvent", function(self, event, ...)
             ["icon"] = ICON,
             ["dbtab"] = CHUT,
             ["dbkey"] = "SHOWMINIMAPBUTTON",
-            ["vTT"] = {{format("|T%d:16:16:0:0|t ChatUtils", ICON), "v" .. ChatUtils:GetVersion()}, {ChatUtils:Trans("LID_LEFTCLICK"), ChatUtils:Trans("LID_OPENSETTINGS")}, {ChatUtils:Trans("LID_RIGHTCLICK"), ChatUtils:Trans("LID_HIDEMINIMAPBUTTON")}},
+            ["vTT"] = {{format("|T%d:16:16:0:0|t ChatUtils", ICON), "v" .. ChatUtils:GetVersion()}, {ChatUtils:Trans("LID_LEFTCLICK"), ChatUtils:Trans("LID_OPENSETTINGS")}, {ChatUtils:Trans("LID_RIGHTCLICK"), ChatUtils:Trans("LID_OPENSETTINGS")}, {ChatUtils:Trans("LID_SHIFTRIGHTCLICK"), ChatUtils:Trans("LID_HIDEMINIMAPBUTTON")}},
             ["funcL"] = function() ChatUtils:ToggleSettings() end,
-            ["funcR"] = function()
+            ["funcR"] = function() ChatUtils:ToggleSettings() end,
+            ["funcSR"] = function()
                 ChatUtils:SV(CHUT, "SHOWMINIMAPBUTTON", false)
                 ChatUtils:HideMMBtn("ChatUtils")
                 ChatUtils:MSG("Minimap Button is now hidden.")
